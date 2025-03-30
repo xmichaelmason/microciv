@@ -14,73 +14,104 @@ class ResourceDisplay extends HTMLElement {
             <style>
                 :host {
                     display: block;
-                    background-color: #f5f5f5;
-                    padding: 15px;
-                    border-bottom: 1px solid #ddd;
+                    background-color: rgba(255, 255, 255, 0.1);
+                    padding: 12px;
+                    border-radius: 6px;
                 }
-                .resources {
-                    display: flex;
-                    justify-content: space-between;
-                    flex-wrap: wrap;
+                .resources-grid {
+                    display: grid;
+                    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+                    gap: 10px;
                 }
-                .resource {
+                .resource-card {
                     display: flex;
                     flex-direction: column;
                     align-items: center;
-                    padding: 8px 15px;
-                    border-radius: 5px;
-                    background-color: white;
-                    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                    padding: 8px;
+                    background-color: rgba(255, 255, 255, 0.15);
+                    border-radius: 6px;
+                    transition: background-color 0.2s;
+                }
+                .resource-card:hover {
+                    background-color: rgba(255, 255, 255, 0.25);
+                }
+                .resource-icon {
+                    width: 24px;
+                    height: 24px;
+                    border-radius: 50%;
+                    margin-bottom: 5px;
+                }
+                .resource-name {
+                    font-size: 0.8em;
+                    text-transform: uppercase;
+                    letter-spacing: 0.5px;
+                    opacity: 0.8;
+                    color: white;
                 }
                 .resource-value {
                     font-size: 1.4em;
                     font-weight: bold;
                     margin: 5px 0;
                 }
-                .resource-name {
-                    font-size: 0.9em;
-                    color: #666;
-                }
-                .production {
+                .resource-production {
                     font-size: 0.8em;
-                    color: green;
+                    display: flex;
+                    align-items: center;
                 }
-                .food { color: #8BC34A; }
-                .wood { color: #795548; }
-                .stone { color: #9E9E9E; }
-                .population { color: #2196F3; }
-                .science { color: #9C27B0; }
+                .food-icon { background-color: #8BC34A; }
+                .wood-icon { background-color: #795548; }
+                .stone-icon { background-color: #9E9E9E; }
+                .science-icon { background-color: #9C27B0; }
+                .population-icon { background-color: #2196F3; }
+                
+                .food-text { color: #8BC34A; }
+                .wood-text { color: #795548; }
+                .stone-text { color: #9E9E9E; }
+                .science-text { color: #9C27B0; }
+                .population-text { color: #2196F3; }
+                
+                .production-positive {
+                    color: #4CAF50;
+                }
+                .production-negative {
+                    color: #F44336;
+                }
             </style>
             
-            <div class="resources">
-                <div class="resource">
+            <div class="resources-grid">
+                <div class="resource-card">
+                    <div class="resource-icon food-icon"></div>
                     <div class="resource-name">Food</div>
-                    <div class="resource-value food" id="food-value">0</div>
-                    <div class="production" id="food-production">+0/turn</div>
+                    <div class="resource-value food-text" id="food-value">0</div>
+                    <div class="resource-production" id="food-production">+0/turn</div>
                 </div>
                 
-                <div class="resource">
+                <div class="resource-card">
+                    <div class="resource-icon wood-icon"></div>
                     <div class="resource-name">Wood</div>
-                    <div class="resource-value wood" id="wood-value">0</div>
-                    <div class="production" id="wood-production">+0/turn</div>
+                    <div class="resource-value wood-text" id="wood-value">0</div>
+                    <div class="resource-production" id="wood-production">+0/turn</div>
                 </div>
                 
-                <div class="resource">
+                <div class="resource-card">
+                    <div class="resource-icon stone-icon"></div>
                     <div class="resource-name">Stone</div>
-                    <div class="resource-value stone" id="stone-value">0</div>
-                    <div class="production" id="stone-production">+0/turn</div>
+                    <div class="resource-value stone-text" id="stone-value">0</div>
+                    <div class="resource-production" id="stone-production">+0/turn</div>
                 </div>
                 
-                <div class="resource">
+                <div class="resource-card">
+                    <div class="resource-icon science-icon"></div>
                     <div class="resource-name">Science</div>
-                    <div class="resource-value science" id="science-value">0</div>
-                    <div class="production" id="science-production">+0/turn</div>
+                    <div class="resource-value science-text" id="science-value">0</div>
+                    <div class="resource-production" id="science-production">+0/turn</div>
                 </div>
                 
-                <div class="resource">
+                <div class="resource-card">
+                    <div class="resource-icon population-icon"></div>
                     <div class="resource-name">Population</div>
-                    <div class="resource-value population" id="population-value">0/0</div>
-                    <div class="production" id="food-consumption">-0 food/turn</div>
+                    <div class="resource-value population-text" id="population-value">0/0</div>
+                    <div class="resource-production" id="food-consumption">-0 food/turn</div>
                 </div>
             </div>
         `;
@@ -103,15 +134,33 @@ class ResourceDisplay extends HTMLElement {
         this.shadowRoot.getElementById('population-value').textContent = 
             `${gameState.population.current}/${gameState.population.capacity}`;
         
-        // Update production rates
-        this.shadowRoot.getElementById('food-production').textContent = `+${formatNumber(gameState.production.food)}/turn`;
-        this.shadowRoot.getElementById('wood-production').textContent = `+${formatNumber(gameState.production.wood)}/turn`;
-        this.shadowRoot.getElementById('stone-production').textContent = `+${formatNumber(gameState.production.stone)}/turn`;
-        this.shadowRoot.getElementById('science-production').textContent = `+${formatNumber(gameState.production.science)}/turn`;
+        // Update production rates with visual indicators
+        this.updateProductionElement('food-production', gameState.production.food);
+        this.updateProductionElement('wood-production', gameState.production.wood);
+        this.updateProductionElement('stone-production', gameState.production.stone);
+        this.updateProductionElement('science-production', gameState.production.science);
         
         // Update food consumption
         const consumption = gameState.population.current * gameState.population.foodConsumptionPerPerson;
-        this.shadowRoot.getElementById('food-consumption').textContent = `-${formatNumber(consumption)} food/turn`;
+        const foodConsumptionElement = this.shadowRoot.getElementById('food-consumption');
+        foodConsumptionElement.textContent = `-${formatNumber(consumption)} food/turn`;
+        foodConsumptionElement.className = 'resource-production production-negative';
+    }
+    
+    updateProductionElement(elementId, value) {
+        const element = this.shadowRoot.getElementById(elementId);
+        if (!element) return;
+        
+        // Format the value
+        const formattedValue = Number(value.toFixed(1));
+        
+        // Set text content with appropriate sign
+        element.textContent = (formattedValue >= 0 ? '+' : '') + formattedValue + '/turn';
+        
+        // Set class for styling
+        element.className = 'resource-production ' + 
+            (formattedValue > 0 ? 'production-positive' : 
+             formattedValue < 0 ? 'production-negative' : '');
     }
 }
 

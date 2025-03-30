@@ -9,78 +9,138 @@
 <body>
     <div class="game-container">
         <header>
-            <h1>MicroCiv</h1>
-            <div class="game-info">
-                <div class="info-item">
+            <div class="game-title-section">
+                <h1>MicroCiv</h1>
+                <button id="end-turn-btn" class="end-turn-btn">End Turn</button>
+            </div>
+            
+            <resource-display></resource-display>
+            
+            <div class="game-status">
+                <div class="status-item">
+                    <span class="status-icon turn-icon"></span>
                     <span>Turn: <span id="turn-counter">1</span></span>
                 </div>
-                <div class="info-item">
+                <div class="status-item">
+                    <span class="status-icon season-icon"></span>
                     <span>Season: <span id="current-season">Spring (3)</span></span>
                 </div>
-                <div class="info-item">
+                <div class="status-item">
+                    <span class="status-icon terrain-icon"></span>
                     <span>Terrain: <span id="current-terrain">Plains</span></span>
                 </div>
-                <div class="info-item">
+                <div class="status-item">
+                    <span class="status-icon defense-icon"></span>
                     <span>Defense: <span id="defense-value">0</span></span>
                 </div>
             </div>
         </header>
         
         <div class="main-content">
-            <div class="game-view">
-                <div class="central-area">
-                    <div class="strategic-controls">
-                        <div class="control-panel terrain-panel">
-                            <h3>Terrain</h3>
-                            <select id="terrain-select">
-                                <!-- Populated by JS -->
-                            </select>
-                        </div>
-                        
-                        <div class="control-panel technology-panel">
-                            <h3>Research</h3>
-                            <div class="research-progress">
-                                <span id="current-research">None</span>
-                                <progress id="tech-progress" value="0" max="100"></progress>
-                            </div>
-                            <select id="tech-select">
-                                <!-- Populated by JS -->
-                            </select>
-                            <button id="research-btn">Research</button>
-                        </div>
-                        
-                        <div class="control-panel military-panel">
-                            <h3>Military</h3>
-                            <select id="unit-select">
-                                <option value="warrior">Warrior (5f, 3w)</option>
-                                <option value="archer">Archer (5f, 8w)</option>
-                            </select>
-                            <button id="train-btn">Train</button>
-                        </div>
-                    </div>
-                    
-                    <game-ui></game-ui>
-                    
-                    <div class="info-section">
-                        <h3>Active Effects</h3>
-                        <ul id="production-multipliers">
-                            <!-- Populated by JS -->
-                        </ul>
-                    </div>
+            <div class="tab-container">
+                <div class="tabs">
+                    <button class="tab-btn active" data-tab="buildings">Buildings</button>
+                    <button class="tab-btn" data-tab="research">Research</button>
+                    <button class="tab-btn" data-tab="military">Military</button>
+                    <button class="tab-btn" data-tab="terrain">Terrain</button>
                 </div>
                 
-                <div class="right-panel">
-                    <div class="events-log-header">Event Log</div>
-                    <div id="events-log-container">
-                        <!-- Events log will be moved here from game-ui -->
+                <!-- Tab content -->
+                <div class="tab-content">
+                    <!-- Buildings Tab -->
+                    <div class="tab-pane active" id="buildings-tab">
+                        <div class="buildings-grid">
+                            <!-- Buildings will be generated here -->
+                        </div>
+                    </div>
+                    
+                    <!-- Research Tab -->
+                    <div class="tab-pane" id="research-tab">
+                        <div class="research-panel">
+                            <div class="current-research">
+                                <h3>Current Research</h3>
+                                <div class="research-progress">
+                                    <span id="current-research">None</span>
+                                    <progress id="tech-progress" value="0" max="100"></progress>
+                                </div>
+                            </div>
+                            
+                            <div class="available-tech">
+                                <h3>Available Technologies</h3>
+                                <div class="tech-list" id="tech-list">
+                                    <!-- Tech options will be generated here -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Military Tab -->
+                    <div class="tab-pane" id="military-tab">
+                        <div class="military-management">
+                            <div class="military-stats">
+                                <h3>Military Strength</h3>
+                                <div class="units-overview">
+                                    <div class="unit-stat warriors">
+                                        <span class="unit-icon warrior-icon"></span>
+                                        <span>Warriors: <span id="warrior-count">0</span></span>
+                                    </div>
+                                    <div class="unit-stat archers">
+                                        <span class="unit-icon archer-icon"></span>
+                                        <span>Archers: <span id="archer-count">0</span></span>
+                                    </div>
+                                    <div class="defense-stat">
+                                        <span class="defense-icon"></span>
+                                        <span>Defense Rating: <span id="defense-rating">0</span></span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="training-area">
+                                <h3>Train Units</h3>
+                                <div class="unit-training-options">
+                                    <div class="training-option warrior">
+                                        <span class="unit-name">Warrior</span>
+                                        <span class="unit-cost">(5 food, 3 wood)</span>
+                                        <button id="train-warrior" class="train-btn">Train</button>
+                                    </div>
+                                    <div class="training-option archer">
+                                        <span class="unit-name">Archer</span>
+                                        <span class="unit-cost">(5 food, 8 wood)</span>
+                                        <button id="train-archer" class="train-btn">Train</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Terrain Tab -->
+                    <div class="tab-pane" id="terrain-tab">
+                        <div class="terrain-selection">
+                            <h3>Change Settlement Location</h3>
+                            <div class="terrain-options" id="terrain-options">
+                                <!-- Terrain options will be generated here -->
+                            </div>
+                            
+                            <div class="terrain-effects">
+                                <h3>Current Effects</h3>
+                                <ul id="production-multipliers">
+                                    <!-- Production effects will be shown here -->
+                                </ul>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
+            
+            <div class="events-panel">
+                <div class="events-header">
+                    <h3>Events</h3>
+                </div>
+                <div id="events-log-container">
+                    <!-- Events log will be inserted here -->
+                </div>
+            </div>
         </div>
-        
-        <footer>
-            <button id="end-turn-btn" class="end-turn">End Turn</button>
-        </footer>
     </div>
     
     <!-- Trade Dialog -->
@@ -92,7 +152,7 @@
             </div>
             <div class="modal-body">
                 <p>Select a trade option:</p>
-                <div id="trade-options">
+                <div id="trade-options" class="trade-options">
                     <!-- Populated by JS -->
                 </div>
             </div>

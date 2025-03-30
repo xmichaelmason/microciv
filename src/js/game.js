@@ -10,6 +10,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // Format numbers to 1 decimal place
     const formatNumber = (num) => Number(num.toFixed(1));
     
+    // Set up tab navigation
+    setupTabs();
+    
     // Set up end turn button
     const endTurnBtn = document.getElementById('end-turn-btn');
     endTurnBtn.addEventListener('click', () => {
@@ -17,59 +20,20 @@ document.addEventListener('DOMContentLoaded', () => {
         updateUI();
     });
     
-    // Initialize the events log in the right panel
+    // Initialize the events log
     initializeEventsLog();
     
-    // Set up terrain selection
-    const terrainSelect = document.getElementById('terrain-select');
-    if (terrainSelect) {
-        // Populate terrain options
-        const terrainOptions = gameState.terrainSystem.getAllTerrainTypes();
-        terrainOptions.forEach(terrain => {
-            const option = document.createElement('option');
-            option.value = terrain.id;
-            option.textContent = terrain.name;
-            terrainSelect.appendChild(option);
-        });
-        
-        terrainSelect.addEventListener('change', (e) => {
-            gameState.terrainSystem.changeTerrain(e.target.value);
-            gameState.updateProduction();
-            gameState.addEvent(`Moved to ${gameState.terrainSystem.getCurrentTerrain().name} terrain`);
-            updateUI();
-        });
-    }
+    // Initialize buildings in the buildings tab
+    initializeBuildingsTab();
     
-    // Set up technology research
-    const techSelect = document.getElementById('tech-select');
-    const researchBtn = document.getElementById('research-btn');
+    // Initialize the research tab
+    initializeResearchTab();
     
-    if (techSelect && researchBtn) {
-        updateTechOptions();
-        
-        researchBtn.addEventListener('click', () => {
-            const selectedTech = techSelect.value;
-            if (selectedTech) {
-                gameState.technologySystem.startResearch(selectedTech);
-                updateTechOptions();
-                updateUI();
-            }
-        });
-    }
+    // Initialize the military tab
+    initializeMilitaryTab();
     
-    // Set up military unit training
-    const unitSelect = document.getElementById('unit-select');
-    const trainBtn = document.getElementById('train-btn');
-    
-    if (unitSelect && trainBtn) {
-        trainBtn.addEventListener('click', () => {
-            const selectedUnit = unitSelect.value;
-            if (selectedUnit) {
-                gameState.militarySystem.trainUnit(selectedUnit);
-                updateUI();
-            }
-        });
-    }
+    // Initialize the terrain tab
+    initializeTerrainTab();
     
     // Set up trading UI
     document.addEventListener('showTradeDialog', () => {
@@ -78,7 +42,27 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
     
-    // Initialize the events log in the right panel
+    function setupTabs() {
+        const tabBtns = document.querySelectorAll('.tab-btn');
+        const tabPanes = document.querySelectorAll('.tab-pane');
+        
+        tabBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                // Remove active class from all buttons and panes
+                tabBtns.forEach(b => b.classList.remove('active'));
+                tabPanes.forEach(p => p.classList.remove('active'));
+                
+                // Add active class to clicked button
+                btn.classList.add('active');
+                
+                // Show the corresponding pane
+                const tabId = btn.getAttribute('data-tab');
+                document.getElementById(`${tabId}-tab`).classList.add('active');
+            });
+        });
+    }
+    
+    // Initialize the events log
     function initializeEventsLog() {
         const eventsLogContainer = document.getElementById('events-log-container');
         if (!eventsLogContainer) return;
@@ -86,6 +70,166 @@ document.addEventListener('DOMContentLoaded', () => {
         // Create a new events-log element
         const eventsLog = document.createElement('events-log');
         eventsLogContainer.appendChild(eventsLog);
+    }
+    
+    // Initialize buildings tab with all building types
+    function initializeBuildingsTab() {
+        const buildingsGrid = document.querySelector('.buildings-grid');
+        if (!buildingsGrid) return;
+        
+        // Building types organized by category
+        const buildingsByCategory = {
+            resources: ['house', 'farm', 'lumberMill', 'quarry', 'library'],
+            defense: ['barracks', 'wall'],
+            victory: ['monument']
+        };
+        
+        // Create buildings grouped by category
+        for (const [category, buildings] of Object.entries(buildingsByCategory)) {
+            // Add category header
+            const categoryHeader = document.createElement('div');
+            categoryHeader.className = 'category-header';
+            categoryHeader.textContent = category.charAt(0).toUpperCase() + category.slice(1);
+            buildingsGrid.appendChild(categoryHeader);
+            
+            // Add buildings for this category
+            buildings.forEach(type => {
+                const buildingCard = document.createElement('building-card');
+                buildingCard.setAttribute('type', type);
+                buildingsGrid.appendChild(buildingCard);
+            });
+        }
+    }
+    
+    // Initialize research tab
+    function initializeResearchTab() {
+        const techList = document.getElementById('tech-list');
+        if (!techList) return;
+        
+        updateTechOptions();
+    }
+    
+    // Create technology cards for research
+    function updateTechOptions() {
+        const techList = document.getElementById('tech-list');
+        if (!techList) return;
+        
+        // Clear existing options
+        techList.innerHTML = '';
+        
+        // Add available technologies as cards
+        const availableTechs = gameState.technologySystem.getAvailableTechnologies();
+        
+        if (availableTechs.length === 0) {
+            const noTech = document.createElement('div');
+            noTech.className = 'no-tech-message';
+            noTech.textContent = 'No technologies available to research at this time.';
+            techList.appendChild(noTech);
+        } else {
+            availableTechs.forEach(tech => {
+                const techCard = document.createElement('div');
+                techCard.className = 'tech-option';
+                techCard.innerHTML = `
+                    <div class="tech-name">${tech.name}</div>
+                    <div class="tech-cost">${tech.cost} science points</div>
+                    <div class="tech-description">${tech.description}</div>
+                    <button class="research-btn" data-tech-id="${tech.id}">Research</button>
+                `;
+                
+                // Add click event for research button
+                const researchBtn = techCard.querySelector('.research-btn');
+                researchBtn.addEventListener('click', () => {
+                    gameState.technologySystem.startResearch(tech.id);
+                    updateUI();
+                });
+                
+                techList.appendChild(techCard);
+            });
+        }
+        
+        // Disable research if currently researching
+        if (gameState.technologySystem.currentResearch !== null) {
+            const buttons = techList.querySelectorAll('.research-btn');
+            buttons.forEach(btn => {
+                btn.disabled = true;
+                btn.textContent = 'Research in Progress';
+            });
+        }
+    }
+    
+    // Initialize military tab
+    function initializeMilitaryTab() {
+        const trainWarriorBtn = document.getElementById('train-warrior');
+        const trainArcherBtn = document.getElementById('train-archer');
+        
+        if (trainWarriorBtn) {
+            trainWarriorBtn.addEventListener('click', () => {
+                if (gameState.militarySystem) {
+                    gameState.militarySystem.trainUnit('warrior');
+                    updateUI();
+                }
+            });
+        }
+        
+        if (trainArcherBtn) {
+            trainArcherBtn.addEventListener('click', () => {
+                if (gameState.militarySystem) {
+                    gameState.militarySystem.trainUnit('archer');
+                    updateUI();
+                }
+            });
+        }
+    }
+    
+    // Initialize terrain tab
+    function initializeTerrainTab() {
+        const terrainOptions = document.getElementById('terrain-options');
+        if (!terrainOptions) return;
+        
+        // Get all terrain types
+        const allTerrains = gameState.terrainSystem.getAllTerrainTypes();
+        
+        // Create terrain option cards
+        allTerrains.forEach(terrain => {
+            const terrainCard = document.createElement('div');
+            terrainCard.className = 'terrain-option';
+            if (gameState.terrainSystem.currentTerrain === terrain.id) {
+                terrainCard.classList.add('active');
+            }
+            
+            // Get detailed terrain info for modifiers
+            const terrainInfo = gameState.terrainSystem.terrainTypes[terrain.id];
+            const modifiers = terrainInfo.modifiers;
+            
+            terrainCard.innerHTML = `
+                <div class="terrain-name">${terrain.name}</div>
+                <div class="terrain-description">${terrain.description}</div>
+                <div class="terrain-modifiers">
+                    Food: ${formatNumber(modifiers.food * 100)}% • 
+                    Wood: ${formatNumber(modifiers.wood * 100)}% • 
+                    Stone: ${formatNumber(modifiers.stone * 100)}%
+                </div>
+            `;
+            
+            // Add click event to select terrain
+            terrainCard.addEventListener('click', () => {
+                if (gameState.terrainSystem.currentTerrain !== terrain.id) {
+                    gameState.terrainSystem.changeTerrain(terrain.id);
+                    gameState.updateProduction();
+                    gameState.addEvent(`Moved to ${terrain.name} terrain`);
+                    
+                    // Update active class
+                    document.querySelectorAll('.terrain-option').forEach(card => {
+                        card.classList.remove('active');
+                    });
+                    terrainCard.classList.add('active');
+                    
+                    updateUI();
+                }
+            });
+            
+            terrainOptions.appendChild(terrainCard);
+        });
     }
     
     function showTradeUI() {
@@ -132,52 +276,65 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     
-    function updateTechOptions() {
-        if (!techSelect) return;
-        
-        // Clear existing options
-        techSelect.innerHTML = '';
-        
-        // Add available technologies
-        const availableTechs = gameState.technologySystem.getAvailableTechnologies();
-        availableTechs.forEach(tech => {
-            const option = document.createElement('option');
-            option.value = tech.id;
-            option.textContent = `${tech.name} (${tech.cost} science) - ${tech.description}`;
-            techSelect.appendChild(option);
-        });
-        
-        // Disable if no options or currently researching
-        techSelect.disabled = availableTechs.length === 0 || gameState.technologySystem.currentResearch !== null;
-        researchBtn.disabled = availableTechs.length === 0 || gameState.technologySystem.currentResearch !== null;
-    }
-    
     // Function to update UI elements
     function updateUI() {
-        // Update the main game UI
-        document.querySelector('game-ui').updateUI();
+        // Update resource display
+        const resourceDisplay = document.querySelector('resource-display');
+        if (resourceDisplay) {
+            resourceDisplay.updateResources();
+        }
         
-        // Update events log in the right panel
+        // Update events log
         const eventsLog = document.querySelector('#events-log-container events-log');
         if (eventsLog) {
             eventsLog.updateEvents();
         }
+        
+        // Update building cards
+        const buildingCards = document.querySelectorAll('building-card');
+        buildingCards.forEach(card => {
+            card.updateBuildingInfo();
+        });
         
         // Update turn counter
         document.getElementById('turn-counter').textContent = gameState.turn;
         
         // Update current season
         const seasonInfo = gameState.seasonsSystem.getCurrentSeasonInfo();
-        const seasonDisplay = document.getElementById('current-season');
-        if (seasonDisplay) {
-            seasonDisplay.textContent = `${seasonInfo.name} (${seasonInfo.turnsRemaining} turns remaining)`;
-        }
+        document.getElementById('current-season').textContent = `${seasonInfo.name} (${seasonInfo.turnsRemaining})`;
         
         // Update current terrain
-        const terrainInfo = gameState.terrainSystem.getTerrainInfo();
-        const terrainDisplay = document.getElementById('current-terrain');
-        if (terrainDisplay) {
-            terrainDisplay.textContent = terrainInfo.name;
+        document.getElementById('current-terrain').textContent = gameState.terrainSystem.getCurrentTerrain().name;
+        
+        // Update defense value
+        document.getElementById('defense-value').textContent = gameState.militarySystem.defenseValue;
+        if (document.getElementById('defense-rating')) {
+            document.getElementById('defense-rating').textContent = gameState.militarySystem.defenseValue;
+        }
+        
+        // Update military units count
+        if (document.getElementById('warrior-count')) {
+            document.getElementById('warrior-count').textContent = gameState.militarySystem.units.warriors;
+        }
+        if (document.getElementById('archer-count')) {
+            document.getElementById('archer-count').textContent = gameState.militarySystem.units.archers;
+        }
+        
+        // Update military buttons state
+        const trainWarriorBtn = document.getElementById('train-warrior');
+        const trainArcherBtn = document.getElementById('train-archer');
+        
+        if (trainWarriorBtn && trainArcherBtn) {
+            const hasBarracks = gameState.buildings.barracks > 0;
+            const canAffordWarrior = hasBarracks && 
+                gameState.resources.food >= gameState.militarySystem.unitCosts.warrior.food && 
+                gameState.resources.wood >= gameState.militarySystem.unitCosts.warrior.wood;
+            const canAffordArcher = hasBarracks && 
+                gameState.resources.food >= gameState.militarySystem.unitCosts.archer.food && 
+                gameState.resources.wood >= gameState.militarySystem.unitCosts.archer.wood;
+                
+            trainWarriorBtn.disabled = !canAffordWarrior;
+            trainArcherBtn.disabled = !canAffordArcher;
         }
         
         // Update technology research progress
@@ -189,22 +346,21 @@ document.addEventListener('DOMContentLoaded', () => {
             currentResearch.textContent = gameState.technologySystem.getCurrentResearchName();
         }
         
-        // Update tech options in case something was researched
+        // Update tech options
         updateTechOptions();
         
-        // Update defense value display
-        const defenseDisplay = document.getElementById('defense-value');
-        if (defenseDisplay) {
-            defenseDisplay.textContent = gameState.militarySystem.defenseValue;
-        }
+        // Update production multipliers
+        updateProductionMultipliers();
         
         // Check if a trade dialog should be displayed
         if (gameState.showTradeDialog) {
             showTradeUI();
         }
         
-        // Check production multipliers to highlight bonuses
-        updateProductionMultipliers();
+        // Check for win condition
+        if (gameState.gameWon) {
+            showWinMessage();
+        }
     }
     
     function updateProductionMultipliers() {
@@ -235,6 +391,28 @@ document.addEventListener('DOMContentLoaded', () => {
                 prodMultipliers.appendChild(techLi);
             }
         }
+    }
+    
+    function showWinMessage() {
+        // Check if win overlay already exists
+        if (document.querySelector('.win-overlay')) return;
+        
+        const winOverlay = document.createElement('div');
+        winOverlay.className = 'win-overlay';
+        winOverlay.innerHTML = `
+            <h1>Victory!</h1>
+            <p>You have built the Monument and secured your civilization's legacy.</p>
+            <button id="restart-btn">Start New Game</button>
+        `;
+        
+        document.body.appendChild(winOverlay);
+        
+        // Set up restart button
+        winOverlay.querySelector('#restart-btn').addEventListener('click', () => {
+            window.gameState = new GameState();
+            updateUI();
+            winOverlay.remove();
+        });
     }
     
     // Initial UI update

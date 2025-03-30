@@ -5,6 +5,15 @@
     --population-color: #2196F3;
     --science-color: #9C27B0;
     --defense-color: #FF5722;
+    --primary-color: #3f51b5;
+    --primary-dark: #303f9f;
+    --accent-color: #FF5722;
+    --text-color: #333;
+    --background-light: #f9f9f9;
+    --border-color: #ddd;
+    --card-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    --header-bg: #303f9f;
+    --tab-active-border: #FF5722;
 }
 
 * {
@@ -15,19 +24,20 @@
 }
 
 body {
-    background-color: #f5f5f5;
+    background-color: #f0f0f0;
     display: flex;
     justify-content: center;
     align-items: center;
     min-height: 100vh;
     margin: 0;
     padding: 0;
+    color: var(--text-color);
 }
 
 .game-container {
     background-color: white;
     border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     width: 90vw;
     height: 95vh;
     max-width: 1200px;
@@ -36,212 +46,164 @@ body {
     flex-direction: column;
 }
 
+/* Header Section */
 header {
-    background-color: #333;
+    background-color: var(--header-bg);
     color: white;
-    padding: 8px;
-    text-align: center;
+    padding: 10px 15px;
     flex-shrink: 0;
+}
+
+.game-title-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
 }
 
 header h1 {
     font-size: 1.5rem;
-    margin-bottom: 5px;
+    margin: 0;
 }
 
-.game-info {
-    display: flex;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    margin-top: 5px;
-    font-size: 0.85em;
-    background-color: #444;
-    padding: 5px;
+.end-turn-btn {
+    background-color: var(--accent-color);
+    color: white;
+    border: none;
     border-radius: 4px;
+    padding: 8px 20px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s;
 }
 
-.info-item {
-    padding: 0 8px;
+.end-turn-btn:hover {
+    background-color: #e64a19;
 }
 
+/* Status Display */
+.game-status {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 10px;
+    background-color: rgba(0, 0, 0, 0.1);
+    padding: 8px 12px;
+    border-radius: 4px;
+    margin-top: 10px;
+}
+
+.status-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.9rem;
+}
+
+.status-icon {
+    width: 16px;
+    height: 16px;
+    display: inline-block;
+    background-color: rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+}
+
+/* Main Content */
 .main-content {
     display: flex;
     flex-grow: 1;
     overflow: hidden;
 }
 
-.left-panel {
-    width: 220px;
-    flex-shrink: 0;
-    overflow-y: auto;
-    border-right: 1px solid #ddd;
-}
-
-.game-view {
-    display: flex;
-    flex-grow: 1;
-    overflow: hidden;
-}
-
-.central-area {
+/* Tab System */
+.tab-container {
     flex-grow: 1;
     display: flex;
     flex-direction: column;
-    overflow-y: auto;
+    min-width: 0;
 }
 
-.right-panel {
-    width: 280px;
-    flex-shrink: 0;
-    overflow-y: auto;
-    border-left: 1px solid #ddd;
-    background-color: #f9f9f9;
+.tabs {
     display: flex;
-    flex-direction: column;
-}
-
-.strategic-controls {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    gap: 5px;
-    padding: 8px;
     background-color: #f0f0f0;
-    border-bottom: 1px solid #ddd;
+    border-bottom: 1px solid var(--border-color);
 }
 
-.control-panel {
-    flex: 1;
-    min-width: 180px;
-    padding: 8px;
-    border-radius: 6px;
-    background-color: white;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-}
-
-.control-panel h3 {
-    margin-bottom: 5px;
-    color: #333;
-    font-size: 0.9em;
-    text-align: center;
-}
-
-.terrain-panel {
-    border-left: 4px solid #8D6E63;
-}
-
-.technology-panel {
-    border-left: 4px solid var(--science-color);
-}
-
-.military-panel {
-    border-left: 4px solid var(--defense-color);
-}
-
-select, button {
-    width: 100%;
-    padding: 6px;
-    margin-bottom: 5px;
-    border-radius: 4px;
-    border: 1px solid #ddd;
-    font-size: 0.9em;
-}
-
-select {
-    background-color: white;
-}
-
-.hint {
-    font-size: 0.75em;
-    color: #777;
-    text-align: center;
-    margin-top: 3px;
-}
-
-.research-progress {
-    margin-bottom: 5px;
-    font-size: 0.85em;
-}
-
-progress {
-    width: 100%;
-    height: 8px;
-    margin: 3px 0;
-}
-
-footer {
-    padding: 8px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background-color: #f0f0f0;
-    flex-shrink: 0;
-}
-
-button {
-    background-color: #4CAF50;
+.tab-btn {
+    padding: 12px 20px;
+    background: none;
     border: none;
-    color: white;
-    padding: 6px 12px;
+    cursor: pointer;
+    font-weight: 600;
+    color: #555;
+    position: relative;
+    transition: color 0.2s;
+    flex-grow: 1;
     text-align: center;
-    text-decoration: none;
-    display: inline-block;
-    font-size: 0.9em;
-    margin: 2px;
-    cursor: pointer;
-    border-radius: 4px;
-    transition: background-color 0.3s;
+    font-size: 0.9rem;
 }
 
-button:hover {
-    background-color: #45a049;
+.tab-btn:hover {
+    background-color: #e8e8e8;
 }
 
-button:disabled {
-    background-color: #cccccc;
-    cursor: not-allowed;
-}
-
-.end-turn {
-    background-color: #2196F3;
-    font-size: 1.1em;
-    padding: 8px 25px;
-}
-
-.end-turn:hover {
-    background-color: #0b7dda;
-}
-
-.resource {
-    display: inline-flex;
-    align-items: center;
-    margin-right: 10px;
-    font-weight: bold;
-    font-size: 0.9em;
-}
-
-.resource-food { color: var(--food-color); }
-.resource-wood { color: var(--wood-color); }
-.resource-stone { color: var(--stone-color); }
-.resource-population { color: var(--population-color); }
-.resource-science { color: var(--science-color); }
-.resource-defense { color: var(--defense-color); }
-
-.building-card {
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    padding: 8px;
-    margin: 5px;
-    width: 150px;
+.tab-btn.active {
+    color: var(--primary-color);
     background-color: white;
-    transition: transform 0.2s;
-    cursor: pointer;
-    font-size: 0.9em;
 }
 
-.building-card:hover {
+.tab-btn.active::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background-color: var(--tab-active-border);
+}
+
+.tab-content {
+    flex-grow: 1;
+    overflow: auto;
+    padding: 15px;
+    background-color: white;
+}
+
+.tab-pane {
+    display: none;
+    height: 100%;
+    overflow: auto;
+}
+
+.tab-pane.active {
+    display: block;
+}
+
+/* Buildings Tab */
+.buildings-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 15px;
+    padding: 10px;
+}
+
+/* Building Cards */
+.building-card {
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 15px;
+    background-color: white;
+    transition: transform 0.2s, box-shadow 0.2s;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    box-shadow: var(--card-shadow);
+}
+
+.building-card:hover:not(.disabled) {
     transform: translateY(-3px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 5px 10px rgba(0,0,0,0.15);
 }
 
 .building-card.disabled {
@@ -249,107 +211,324 @@ button:disabled {
     cursor: not-allowed;
 }
 
-.buildings-container {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    padding: 10px;
+.building-title {
+    font-weight: bold;
+    font-size: 1.1rem;
+    margin-bottom: 8px;
 }
 
-.resources-display {
-    display: flex;
-    justify-content: space-around;
-    flex-wrap: wrap;
-    padding: 10px;
-    background-color: #f9f9f9;
-    border-bottom: 1px solid #eee;
-}
-
-.cost {
-    font-size: 0.8em;
+.building-count {
+    margin-bottom: 10px;
     color: #666;
 }
 
-.win-message {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: rgba(0, 0, 0, 0.8);
+.building-effect {
+    margin-bottom: 10px;
+    color: var(--primary-color);
+    font-size: 0.9rem;
+}
+
+.cost {
     display: flex;
-    justify-content: center;
+    gap: 10px;
+    margin-top: auto;
+    font-size: 0.85rem;
+}
+
+.cost-item {
+    display: flex;
     align-items: center;
-    color: white;
-    font-size: 2rem;
-    z-index: 100;
+    gap: 4px;
+}
+
+.cost-icon {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+.wood-icon { background-color: var(--wood-color); }
+.stone-icon { background-color: var(--stone-color); }
+.food-icon { background-color: var(--food-color); }
+
+/* Research Tab */
+.research-panel {
+    display: flex;
     flex-direction: column;
+    gap: 20px;
 }
 
-.win-message button {
-    margin-top: 20px;
-    font-size: 1.2rem;
-    padding: 10px 20px;
+.current-research, 
+.available-tech {
+    background-color: var(--background-light);
+    border-radius: 6px;
+    padding: 15px;
+    box-shadow: var(--card-shadow);
 }
 
-.events-log {
-    flex-grow: 1;
-    padding: 8px;
-    font-size: 0.85em;
-    color: #555;
-    overflow-y: auto;
-    min-height: 0;
-    max-height: none;
+.research-progress {
+    margin: 10px 0;
 }
 
-.events-log-header {
-    padding: 10px;
-    background-color: #444;
+progress {
+    width: 100%;
+    height: 10px;
+    border-radius: 5px;
+    margin: 10px 0;
+}
+
+.tech-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 15px;
+    margin-top: 15px;
+}
+
+.tech-option {
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 12px;
+    background-color: white;
+    cursor: pointer;
+    box-shadow: var(--card-shadow);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.tech-option:hover:not(.disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.tech-option.disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.tech-option .tech-name {
+    font-weight: bold;
+    color: var(--science-color);
+}
+
+.tech-option .tech-cost {
+    font-size: 0.85rem;
+    color: #666;
+}
+
+.tech-option .tech-description {
+    font-size: 0.9rem;
+}
+
+.research-btn {
+    background-color: var(--science-color);
     color: white;
-    font-weight: bold;
-    text-align: center;
-    border-bottom: 1px solid #333;
-}
-
-.events-log .event {
-    padding: 5px;
-    border-bottom: 1px dotted #ddd;
-}
-
-.events-log .event:nth-child(even) {
-    background-color: #f5f5f5;
-}
-
-.events-log .event.raid {
-    color: #d32f2f;
-    font-weight: bold;
-    background-color: rgba(255, 0, 0, 0.05);
-}
-
-.info-section {
+    border: none;
+    border-radius: 4px;
     padding: 8px;
-    background-color: #f9f9f9;
-    border-top: 1px solid #eee;
-    font-size: 0.9em;
+    margin-top: auto;
+    cursor: pointer;
+    font-weight: 500;
 }
 
-.info-section h3 {
-    margin-bottom: 5px;
-    color: #333;
-    font-size: 0.95em;
+.research-btn:hover:not(:disabled) {
+    background-color: #7B1FA2;
+}
+
+.research-btn:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+/* Military Tab */
+.military-management {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.military-stats, 
+.training-area {
+    background-color: var(--background-light);
+    border-radius: 6px;
+    padding: 15px;
+    box-shadow: var(--card-shadow);
+}
+
+.units-overview {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 15px;
+    margin-top: 15px;
+}
+
+.unit-stat {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 1.1rem;
+}
+
+.unit-icon {
+    width: 20px;
+    height: 20px;
+    display: inline-block;
+    border-radius: 4px;
+}
+
+.warrior-icon { background-color: #8D6E63; }
+.archer-icon { background-color: #4CAF50; }
+.defense-icon { background-color: var(--defense-color); }
+
+.unit-training-options {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 15px;
+    margin-top: 15px;
+}
+
+.training-option {
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 12px;
+    background-color: white;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    box-shadow: var(--card-shadow);
+}
+
+.unit-name {
+    font-weight: bold;
+    font-size: 1.1rem;
+}
+
+.unit-cost {
+    font-size: 0.85rem;
+    color: #666;
+}
+
+.train-btn {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 8px;
+    margin-top: 5px;
+    cursor: pointer;
+    font-weight: 500;
+}
+
+.train-btn:hover:not(:disabled) {
+    background-color: var(--primary-dark);
+}
+
+.train-btn:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+/* Terrain Tab */
+.terrain-selection {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.terrain-options {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 15px;
+    margin-top: 15px;
+}
+
+.terrain-option {
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 12px;
+    background-color: white;
+    cursor: pointer;
+    box-shadow: var(--card-shadow);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.terrain-option:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 10px rgba(0,0,0,0.15);
+}
+
+.terrain-option.active {
+    border: 2px solid var(--primary-color);
+}
+
+.terrain-name {
+    font-weight: bold;
+    font-size: 1.1rem;
+}
+
+.terrain-description {
+    font-size: 0.9rem;
+    color: #555;
+}
+
+.terrain-modifiers {
+    font-size: 0.85rem;
+    color: #666;
+    margin-top: auto;
+}
+
+.terrain-effects {
+    background-color: var(--background-light);
+    border-radius: 6px;
+    padding: 15px;
+    box-shadow: var(--card-shadow);
 }
 
 #production-multipliers {
     list-style-type: none;
-    font-size: 0.8em;
-    color: #666;
+    margin-top: 10px;
 }
 
 #production-multipliers li {
-    padding: 2px 0;
+    padding: 5px 0;
+    border-bottom: 1px dotted #eee;
 }
 
-/* Modal styles for trade dialog */
+/* Events Panel */
+.events-panel {
+    width: 280px;
+    flex-shrink: 0;
+    border-left: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+    background-color: var(--background-light);
+}
+
+.events-header {
+    background-color: var(--primary-dark);
+    color: white;
+    padding: 12px;
+    font-weight: bold;
+    text-align: center;
+}
+
+#events-log-container {
+    flex-grow: 1;
+    overflow-y: auto;
+    padding: 0;
+}
+
+/* Resource Display */
+resource-display {
+    display: block;
+    margin-bottom: 10px;
+}
+
+/* Trade Dialog */
 .modal {
     display: none;
     position: fixed;
@@ -363,27 +542,33 @@ button:disabled {
 }
 
 .modal-content {
-    background-color: #fefefe;
+    background-color: white;
     margin: 15% auto;
-    padding: 15px;
-    border: 1px solid #888;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
     width: 80%;
     max-width: 500px;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    animation: modalFadeIn 0.3s;
+}
+
+@keyframes modalFadeIn {
+    from {opacity: 0; transform: translateY(-20px);}
+    to {opacity: 1; transform: translateY(0);}
 }
 
 .modal-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border-bottom: 1px solid #eee;
-    padding-bottom: 8px;
-    margin-bottom: 10px;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 10px;
+    margin-bottom: 15px;
 }
 
 .modal-header h2 {
-    font-size: 1.2em;
+    margin: 0;
+    color: var(--primary-color);
 }
 
 .close-btn {
@@ -391,62 +576,122 @@ button:disabled {
     font-size: 24px;
     font-weight: bold;
     cursor: pointer;
+    border: none;
+    background: none;
 }
 
 .close-btn:hover {
     color: #333;
 }
 
+.trade-options {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 15px;
+    margin-top: 15px;
+}
+
 .trade-option {
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 15px;
     background-color: #f9f9f9;
-    padding: 8px;
-    margin: 8px 0;
-    border-radius: 4px;
-    border: 1px solid #eee;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
 }
 
 .trade-btn {
     background-color: #FFC107;
-    width: auto;
+    color: #333;
+    border: none;
+    border-radius: 4px;
+    padding: 8px 15px;
+    cursor: pointer;
+    font-weight: 500;
+    align-self: flex-end;
 }
 
 .trade-btn:hover {
     background-color: #FFA000;
 }
 
-/* Adjustments for smaller screens */
+/* Win Overlay */
+.win-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    color: white;
+    font-size: 24px;
+    z-index: 1000;
+    text-align: center;
+}
+
+.win-overlay h1 {
+    color: gold;
+    font-size: 3rem;
+    margin-bottom: 20px;
+    animation: winPulse 2s infinite;
+}
+
+@keyframes winPulse {
+    0% {transform: scale(1);}
+    50% {transform: scale(1.1);}
+    100% {transform: scale(1);}
+}
+
+.win-overlay button {
+    margin-top: 30px;
+    padding: 15px 30px;
+    font-size: 1.2rem;
+    background-color: gold;
+    color: #333;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: transform 0.2s, background-color 0.2s;
+}
+
+.win-overlay button:hover {
+    transform: scale(1.05);
+    background-color: #FFD700;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .main-content {
+        flex-direction: column;
+    }
+    
+    .events-panel {
+        width: 100%;
+        height: 200px;
+        border-left: none;
+        border-top: 1px solid var(--border-color);
+    }
+    
+    .buildings-grid,
+    .tech-list,
+    .units-overview,
+    .unit-training-options,
+    .terrain-options {
+        grid-template-columns: 1fr;
+    }
+}
+
 @media (max-height: 700px) {
     .game-container {
         height: 98vh;
     }
     
     header {
-        padding: 5px;
+        padding: 5px 15px;
     }
-    
-    .strategic-controls {
-        padding: 5px;
-    }
-    
-    .control-panel {
-        padding: 5px;
-    }
-    
-    .events-log {
-        max-height: 100px;
-    }
-    
-    .building-card {
-        margin: 3px;
-        padding: 5px;
-        width: 140px;
-    }
-}
-
-/* Fix for game-ui component */
-game-ui {
-    display: flex;
-    flex-direction: column;
-    flex-grow: 1;
-    overflow: hidden;
 }

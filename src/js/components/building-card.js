@@ -35,60 +35,123 @@ class BuildingCard extends HTMLElement {
                 }
                 .card {
                     border: 1px solid #ddd;
-                    border-radius: 5px;
-                    padding: 12px;
-                    width: 140px;
+                    border-radius: 6px;
+                    padding: 15px;
                     background-color: white;
-                    transition: transform 0.2s, box-shadow 0.2s;
+                    transition: all 0.2s ease;
                     cursor: pointer;
-                    text-align: center;
+                    height: 100%;
+                    display: flex;
+                    flex-direction: column;
+                    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
                 }
                 .card:hover:not(.disabled) {
-                    transform: translateY(-3px);
-                    box-shadow: 0 5px 10px rgba(0,0,0,0.1);
+                    transform: translateY(-5px);
+                    box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+                    border-color: #aaa;
                 }
                 .disabled {
                     opacity: 0.6;
                     cursor: not-allowed;
                 }
+                .building-header {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    margin-bottom: 10px;
+                }
                 .building-title {
                     font-weight: bold;
-                    font-size: 1.1em;
-                    margin-bottom: 5px;
+                    font-size: 1.2em;
+                    color: #333;
                 }
                 .building-count {
-                    margin-bottom: 8px;
+                    background-color: #f0f0f0;
+                    border-radius: 12px;
+                    padding: 3px 8px;
                     font-size: 0.9em;
                     color: #666;
                 }
                 .building-effect {
-                    margin-bottom: 8px;
+                    margin: 10px 0;
+                    color: #3f51b5;
+                    font-size: 0.9em;
+                }
+                .cost-section {
+                    margin-top: auto;
+                    padding-top: 10px;
+                    border-top: 1px dotted #eee;
+                }
+                .cost-title {
                     font-size: 0.8em;
-                    color: #2196F3;
+                    color: #888;
+                    margin-bottom: 5px;
                 }
                 .cost {
                     display: flex;
-                    justify-content: center;
-                    gap: 8px;
-                    font-size: 0.8em;
-                    margin-top: 5px;
+                    justify-content: flex-start;
+                    gap: 12px;
+                    font-size: 0.9em;
                 }
                 .cost-item {
                     display: flex;
                     align-items: center;
+                    gap: 5px;
                 }
-                .wood { color: #795548; }
-                .stone { color: #9E9E9E; }
+                .cost-icon {
+                    width: 12px;
+                    height: 12px;
+                    border-radius: 50%;
+                    display: inline-block;
+                }
+                .wood-icon { background-color: #795548; }
+                .stone-icon { background-color: #9E9E9E; }
+                
+                .affordable {
+                    border-left: 3px solid #4CAF50;
+                }
+                
+                .locked {
+                    position: relative;
+                }
+                
+                .locked::after {
+                    content: "🔒";
+                    position: absolute;
+                    top: 10px;
+                    right: 10px;
+                    font-size: 1.2em;
+                }
+                
+                .requirement-msg {
+                    margin-top: 8px;
+                    font-size: 0.8em;
+                    color: #FF5722;
+                }
             </style>
             
             <div class="card">
-                <div class="building-title">${buildingInfo.title}</div>
-                <div class="building-count" id="count">Owned: 0</div>
-                <div class="building-effect">${buildingInfo.effect}</div>
-                <div class="cost">
-                    ${buildingInfo.costs.wood ? `<div class="cost-item wood">${buildingInfo.costs.wood} Wood</div>` : ''}
-                    ${buildingInfo.costs.stone ? `<div class="cost-item stone">${buildingInfo.costs.stone} Stone</div>` : ''}
+                <div class="building-header">
+                    <div class="building-title">${buildingInfo.title}</div>
+                    <div class="building-count" id="count">0</div>
                 </div>
+                <div class="building-effect">${buildingInfo.effect}</div>
+                <div class="cost-section">
+                    <div class="cost-title">Cost</div>
+                    <div class="cost">
+                        ${buildingInfo.costs.wood ? `
+                            <div class="cost-item">
+                                <span class="cost-icon wood-icon"></span>
+                                <span>${buildingInfo.costs.wood}</span>
+                            </div>` : ''}
+                        ${buildingInfo.costs.stone ? `
+                            <div class="cost-item">
+                                <span class="cost-icon stone-icon"></span>
+                                <span>${buildingInfo.costs.stone}</span>
+                            </div>` : ''}
+                    </div>
+                </div>
+                <div class="requirement-msg" id="requirement-msg"></div>
             </div>
         `;
     }
@@ -148,11 +211,29 @@ class BuildingCard extends HTMLElement {
             const gameState = window.gameState;
             if (!gameState) return;
             
-            if (gameState.canAfford(this.type)) {
+            if (gameState.canAfford(this.type) && gameState.meetsRequirements(this.type)) {
                 gameState.build(this.type);
-                document.querySelector('game-ui').updateUI();
+                
+                // Provide visual feedback on successful build
+                this.showBuildFeedback();
+                
+                // Update UI through game-ui component or document events
+                const gameUI = document.querySelector('game-ui');
+                if (gameUI) {
+                    gameUI.updateUI();
+                }
             }
         });
+    }
+    
+    showBuildFeedback() {
+        const card = this.shadowRoot.querySelector('.card');
+        card.style.backgroundColor = '#e8f5e9'; // Light green flash
+        
+        // Reset after animation
+        setTimeout(() => {
+            card.style.backgroundColor = '';
+        }, 500);
     }
     
     updateBuildingInfo() {
@@ -160,16 +241,53 @@ class BuildingCard extends HTMLElement {
         if (!gameState) return;
         
         const card = this.shadowRoot.querySelector('.card');
-        const countElement = this.shadowRoot.getElementById('count');
+        const countElement = this.shadowRoot.querySelector('.building-count');
+        const reqMsg = this.shadowRoot.getElementById('requirement-msg');
         
         // Update count
-        countElement.textContent = `Owned: ${gameState.buildings[this.type]}`;
+        const buildingCount = gameState.buildings[this.type] || 0;
+        countElement.textContent = buildingCount;
         
-        // Enable/disable card based on affordability
-        if (gameState.canAfford(this.type)) {
-            card.classList.remove('disabled');
-        } else {
+        // Check if player can afford it
+        const canAfford = gameState.canAfford(this.type);
+        
+        // Check if requirements are met
+        const meetsReqs = gameState.meetsRequirements(this.type);
+        
+        // Update card appearance and interactivity
+        card.classList.remove('disabled', 'affordable', 'locked');
+        
+        if (!meetsReqs) {
+            card.classList.add('disabled', 'locked');
+            
+            // Show requirements message
+            const reqs = gameState.buildingRequirements[this.type];
+            let reqMessage = "Requires: ";
+            
+            if (reqs.tech && reqs.tech.length > 0) {
+                reqMessage += reqs.tech.map(tech => {
+                    const techObj = gameState.technologySystem.technologies[tech];
+                    return techObj ? techObj.name : tech;
+                }).join(", ");
+                
+                if (Object.keys(reqs.building).length > 0) {
+                    reqMessage += " and ";
+                }
+            }
+            
+            if (Object.keys(reqs.building).length > 0) {
+                reqMessage += Object.entries(reqs.building)
+                    .map(([building, count]) => `${count} ${building}`)
+                    .join(", ");
+            }
+            
+            reqMsg.textContent = reqMessage;
+        } else if (!canAfford) {
             card.classList.add('disabled');
+            reqMsg.textContent = "Not enough resources";
+        } else {
+            card.classList.add('affordable');
+            reqMsg.textContent = "";
         }
     }
 }
