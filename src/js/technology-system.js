@@ -98,10 +98,6 @@ export class TechnologySystem {
         
         // Technologies that have been researched
         this.researched = [];
-        
-        // Currently researching technology
-        this.currentResearch = null;
-        this.researchProgress = 0;
     }
     
     // Get available technologies to research (prerequisites are met and not already researched)
@@ -122,7 +118,7 @@ export class TechnologySystem {
             }));
     }
     
-    // Start researching a technology
+    // Research a technology immediately if we have enough science points
     startResearch(technologyId) {
         if (!this.technologies[technologyId]) {
             this.gameState.addEvent(`Unknown technology: ${technologyId}`);
@@ -141,59 +137,35 @@ export class TechnologySystem {
             return false;
         }
         
-        // Check if player has enough science points to start research
-        if (this.gameState.resources.science < 1) {
-            this.gameState.addEvent(`Not enough science points to research ${tech.name}`);
+        // Check if player has enough science points for the research
+        if (this.gameState.resources.science < tech.cost) {
+            this.gameState.addEvent(`Not enough science points to research ${tech.name}. Need ${tech.cost} points.`);
             return false;
         }
         
-        this.currentResearch = technologyId;
-        this.researchProgress = 0;
-        this.gameState.addEvent(`Started researching ${tech.name}`);
+        // Deduct science points
+        this.gameState.resources.science -= tech.cost;
+        
+        // Apply technology effect
+        this.researched.push(technologyId);
+        tech.effect();
+        this.gameState.addEvent(`Research complete: ${tech.name}`);
+        
         return true;
     }
     
-    // Process research progress for the turn
+    // No need to process research over multiple turns anymore
     processTurn() {
-        if (!this.currentResearch) return;
-        
-        const tech = this.technologies[this.currentResearch];
-        
-        // Calculate how much science to use this turn
-        const scienceToUse = Math.min(
-            this.gameState.resources.science,
-            this.gameState.production.science
-        );
-        
-        // Only advance research if we have science points
-        if (scienceToUse > 0) {
-            // Deduct science points from resources
-            this.gameState.resources.science -= scienceToUse;
-            
-            // Add to research progress
-            this.researchProgress += scienceToUse;
-        }
-        
-        if (this.researchProgress >= tech.cost) {
-            // Research complete
-            this.researched.push(this.currentResearch);
-            tech.effect();
-            this.gameState.addEvent(`Research complete: ${tech.name}`);
-            this.currentResearch = null;
-            this.researchProgress = 0;
-        }
+        // Nothing to do here anymore, research is completed immediately
     }
     
-    // Get research progress as percentage
-    getResearchProgress() {
-        if (!this.currentResearch) return 0;
-        const tech = this.technologies[this.currentResearch];
-        return Math.min(100, (this.researchProgress / tech.cost) * 100);
-    }
-    
-    // Get current research name
+    // Returns the name of the current research (used for UI)
     getCurrentResearchName() {
-        if (!this.currentResearch) return "None";
-        return this.technologies[this.currentResearch].name;
+        return "None"; // We don't have ongoing research anymore
+    }
+    
+    // Returns progress percentage (used for UI)
+    getResearchProgress() {
+        return 0; // We don't track progress anymore as research is immediate
     }
 }

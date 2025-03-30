@@ -183,8 +183,8 @@ header h1 {
 /* Buildings Tab */
 .buildings-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-    gap: 15px;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 12px;
     padding: 10px;
 }
 
@@ -259,7 +259,7 @@ header h1 {
     gap: 20px;
 }
 
-.current-research, 
+.research-info, 
 .available-tech {
     background-color: var(--background-light);
     border-radius: 6px;
@@ -267,20 +267,49 @@ header h1 {
     box-shadow: var(--card-shadow);
 }
 
-.research-progress {
-    margin: 10px 0;
+.research-intro {
+    font-size: 0.9rem;
+    color: #666;
+    margin-bottom: 15px;
+    line-height: 1.4;
 }
 
-progress {
-    width: 100%;
-    height: 10px;
-    border-radius: 5px;
-    margin: 10px 0;
+.researched-techs {
+    margin-top: 15px;
+    border-top: 1px solid #eee;
+    padding-top: 10px;
+}
+
+.researched-techs h4 {
+    font-size: 1rem;
+    color: var(--primary-color);
+    margin-bottom: 8px;
+}
+
+#researched-tech-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.researched-tech {
+    background-color: #e3f2fd;
+    color: var(--science-color);
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    display: inline-block;
+}
+
+.no-techs {
+    color: #999;
+    font-style: italic;
+    font-size: 0.9rem;
 }
 
 .tech-list {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
     gap: 15px;
     margin-top: 15px;
 }
@@ -289,15 +318,14 @@ progress {
     border: 1px solid var(--border-color);
     border-radius: 6px;
     padding: 12px;
-    background-color: white;
-    cursor: pointer;
+    background: linear-gradient(to bottom, #ffffff, #f9f9f9);
     box-shadow: var(--card-shadow);
     display: flex;
     flex-direction: column;
     gap: 8px;
 }
 
-.tech-option:hover:not(.disabled) {
+.tech-option:not(.disabled):hover {
     transform: translateY(-2px);
     box-shadow: 0 4px 8px rgba(0,0,0,0.15);
 }
@@ -305,20 +333,23 @@ progress {
 .tech-option.disabled {
     opacity: 0.6;
     cursor: not-allowed;
+    background: linear-gradient(to bottom, #f5f5f5, #eeeeee);
 }
 
 .tech-option .tech-name {
     font-weight: bold;
     color: var(--science-color);
+    font-size: 0.95rem;
 }
 
 .tech-option .tech-cost {
-    font-size: 0.85rem;
+    font-size: 0.8rem;
     color: #666;
 }
 
 .tech-option .tech-description {
-    font-size: 0.9rem;
+    font-size: 0.85rem;
+    color: #555;
 }
 
 .research-btn {
@@ -326,10 +357,11 @@ progress {
     color: white;
     border: none;
     border-radius: 4px;
-    padding: 8px;
+    padding: 6px;
     margin-top: auto;
     cursor: pointer;
     font-weight: 500;
+    font-size: 0.9rem;
 }
 
 .research-btn:hover:not(:disabled) {

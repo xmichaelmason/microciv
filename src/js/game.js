@@ -109,7 +109,7 @@ document.addEventListener('DOMContentLoaded', () => {
         updateTechOptions();
     }
     
-    // Create technology cards for research
+    // Update technology research UI
     function updateTechOptions() {
         const techList = document.getElementById('tech-list');
         if (!techList) return;
@@ -129,32 +129,63 @@ document.addEventListener('DOMContentLoaded', () => {
             availableTechs.forEach(tech => {
                 const techCard = document.createElement('div');
                 techCard.className = 'tech-option';
+                
+                // Check if player can afford this tech
+                const canAfford = gameState.resources.science >= tech.cost;
+                if (!canAfford) {
+                    techCard.classList.add('disabled');
+                }
+                
                 techCard.innerHTML = `
                     <div class="tech-name">${tech.name}</div>
                     <div class="tech-cost">${tech.cost} science points</div>
                     <div class="tech-description">${tech.description}</div>
-                    <button class="research-btn" data-tech-id="${tech.id}">Research</button>
+                    <button class="research-btn" data-tech-id="${tech.id}" ${!canAfford ? 'disabled' : ''}>
+                        ${!canAfford ? 'Not Enough Science' : 'Research'}
+                    </button>
                 `;
                 
                 // Add click event for research button
                 const researchBtn = techCard.querySelector('.research-btn');
                 researchBtn.addEventListener('click', () => {
-                    gameState.technologySystem.startResearch(tech.id);
-                    updateUI();
+                    if (canAfford) {
+                        gameState.technologySystem.startResearch(tech.id);
+                        updateResearchedTechList();
+                        updateUI();
+                    }
                 });
                 
                 techList.appendChild(techCard);
             });
         }
+    }
+
+    // Update the list of researched technologies
+    function updateResearchedTechList() {
+        const researchedList = document.getElementById('researched-tech-list');
+        if (!researchedList) return;
+
+        // Clear existing list
+        researchedList.innerHTML = '';
+
+        // Get researched technologies
+        const researched = gameState.technologySystem.researched;
         
-        // Disable research if currently researching
-        if (gameState.technologySystem.currentResearch !== null) {
-            const buttons = techList.querySelectorAll('.research-btn');
-            buttons.forEach(btn => {
-                btn.disabled = true;
-                btn.textContent = 'Research in Progress';
-            });
+        if (researched.length === 0) {
+            researchedList.innerHTML = '<span class="no-techs">None yet</span>';
+            return;
         }
+        
+        // Add each researched tech to the list
+        researched.forEach(techId => {
+            const tech = gameState.technologySystem.technologies[techId];
+            if (!tech) return;
+            
+            const techSpan = document.createElement('span');
+            techSpan.className = 'researched-tech';
+            techSpan.textContent = tech.name;
+            researchedList.appendChild(techSpan);
+        });
     }
     
     // Initialize military tab
@@ -337,17 +368,9 @@ document.addEventListener('DOMContentLoaded', () => {
             trainArcherBtn.disabled = !canAffordArcher;
         }
         
-        // Update technology research progress
-        const techProgress = document.getElementById('tech-progress');
-        const currentResearch = document.getElementById('current-research');
-        if (techProgress && currentResearch) {
-            const progress = gameState.technologySystem.getResearchProgress();
-            techProgress.value = progress;
-            currentResearch.textContent = gameState.technologySystem.getCurrentResearchName();
-        }
-        
-        // Update tech options
+        // Update tech options and researched techs
         updateTechOptions();
+        updateResearchedTechList();
         
         // Update production multipliers
         updateProductionMultipliers();

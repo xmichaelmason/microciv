@@ -36,8 +36,8 @@ class BuildingCard extends HTMLElement {
                 .card {
                     border: 1px solid #ddd;
                     border-radius: 6px;
-                    padding: 15px;
-                    background-color: white;
+                    padding: 10px;
+                    background: linear-gradient(to bottom, #ffffff, #f9f9f9);
                     transition: all 0.2s ease;
                     cursor: pointer;
                     height: 100%;
@@ -46,61 +46,62 @@ class BuildingCard extends HTMLElement {
                     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
                 }
                 .card:hover:not(.disabled) {
-                    transform: translateY(-5px);
-                    box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+                    transform: translateY(-3px);
+                    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
                     border-color: #aaa;
                 }
                 .disabled {
                     opacity: 0.6;
                     cursor: not-allowed;
+                    background: linear-gradient(to bottom, #f5f5f5, #eeeeee);
                 }
                 .building-header {
                     display: flex;
                     justify-content: space-between;
                     align-items: center;
-                    margin-bottom: 10px;
+                    margin-bottom: 6px;
                 }
                 .building-title {
                     font-weight: bold;
-                    font-size: 1.2em;
+                    font-size: 1em;
                     color: #333;
                 }
                 .building-count {
                     background-color: #f0f0f0;
-                    border-radius: 12px;
-                    padding: 3px 8px;
-                    font-size: 0.9em;
+                    border-radius: 10px;
+                    padding: 2px 6px;
+                    font-size: 0.8em;
                     color: #666;
                 }
                 .building-effect {
-                    margin: 10px 0;
+                    margin: 6px 0;
                     color: #3f51b5;
-                    font-size: 0.9em;
+                    font-size: 0.8em;
                 }
                 .cost-section {
                     margin-top: auto;
-                    padding-top: 10px;
+                    padding-top: 6px;
                     border-top: 1px dotted #eee;
                 }
                 .cost-title {
-                    font-size: 0.8em;
+                    font-size: 0.7em;
                     color: #888;
-                    margin-bottom: 5px;
+                    margin-bottom: 3px;
                 }
                 .cost {
                     display: flex;
                     justify-content: flex-start;
-                    gap: 12px;
-                    font-size: 0.9em;
+                    gap: 8px;
+                    font-size: 0.8em;
                 }
                 .cost-item {
                     display: flex;
                     align-items: center;
-                    gap: 5px;
+                    gap: 3px;
                 }
                 .cost-icon {
-                    width: 12px;
-                    height: 12px;
+                    width: 10px;
+                    height: 10px;
                     border-radius: 50%;
                     display: inline-block;
                 }
@@ -118,14 +119,14 @@ class BuildingCard extends HTMLElement {
                 .locked::after {
                     content: "🔒";
                     position: absolute;
-                    top: 10px;
-                    right: 10px;
-                    font-size: 1.2em;
+                    top: 8px;
+                    right: 8px;
+                    font-size: 0.9em;
                 }
                 
                 .requirement-msg {
-                    margin-top: 8px;
-                    font-size: 0.8em;
+                    margin-top: 6px;
+                    font-size: 0.7em;
                     color: #FF5722;
                 }
             </style>
