@@ -1,6 +1,7 @@
 import './resource-display.js';
 import './building-card.js';
 import './events-log.js';
+import './military-panel.js';
 
 class GameUI extends HTMLElement {
     constructor() {
@@ -11,30 +12,56 @@ class GameUI extends HTMLElement {
     
     connectedCallback() {
         this.updateUI();
+        this.addEventListeners();
+    }
+    
+    addEventListeners() {
+        // Listen for military updates to refresh the UI
+        this.shadowRoot.addEventListener('military-update', () => {
+            this.updateUI();
+        });
     }
     
     render() {
         this.shadowRoot.innerHTML = `
             <style>
                 :host {
-                    display: block;
+                    display: flex;
+                    flex-direction: column;
+                    flex-grow: 1;
+                    overflow: auto;
                 }
                 .game-content {
-                    padding: 10px;
+                    display: flex;
+                    flex-direction: column;
                 }
                 .buildings-section {
-                    margin-top: 20px;
+                    margin-top: 5px;
                 }
                 .buildings-container {
                     display: flex;
                     flex-wrap: wrap;
-                    gap: 10px;
+                    gap: 5px;
                     justify-content: center;
+                    padding: 5px;
                 }
                 h2 {
                     text-align: center;
-                    margin-bottom: 10px;
+                    margin: 5px 0;
                     color: #333;
+                    font-size: 1.1em;
+                }
+                .category-title {
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    margin-top: 10px;
+                    padding: 3px;
+                    background-color: #f5f5f5;
+                    border-radius: 3px;
+                    font-size: 0.85em;
+                    font-weight: bold;
+                    color: #555;
                 }
                 .win-overlay {
                     position: fixed;
@@ -61,6 +88,9 @@ class GameUI extends HTMLElement {
                     border-radius: 5px;
                     cursor: pointer;
                 }
+                .military-section {
+                    margin: 0 10px;
+                }
             </style>
             
             <resource-display></resource-display>
@@ -68,16 +98,31 @@ class GameUI extends HTMLElement {
             <div class="game-content">
                 <div class="buildings-section">
                     <h2>Buildings</h2>
+                    
+                    <div class="category-title">Resources</div>
                     <div class="buildings-container">
                         <building-card type="house"></building-card>
                         <building-card type="farm"></building-card>
                         <building-card type="lumberMill"></building-card>
                         <building-card type="quarry"></building-card>
+                        <building-card type="library"></building-card>
+                    </div>
+                    
+                    <div class="category-title">Defense</div>
+                    <div class="buildings-container">
+                        <building-card type="barracks"></building-card>
+                        <building-card type="wall"></building-card>
+                    </div>
+                    
+                    <div class="category-title">Victory</div>
+                    <div class="buildings-container">
                         <building-card type="monument"></building-card>
                     </div>
                 </div>
                 
-                <events-log></events-log>
+                <div class="military-section">
+                    <military-panel></military-panel>
+                </div>
             </div>
         `;
     }
@@ -98,10 +143,10 @@ class GameUI extends HTMLElement {
             card.updateBuildingInfo();
         });
         
-        // Update events log
-        const eventsLog = this.shadowRoot.querySelector('events-log');
-        if (eventsLog) {
-            eventsLog.updateEvents();
+        // Update military panel
+        const militaryPanel = this.shadowRoot.querySelector('military-panel');
+        if (militaryPanel) {
+            militaryPanel.updatePanel();
         }
         
         // Check for win condition

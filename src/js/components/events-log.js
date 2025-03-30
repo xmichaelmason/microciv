@@ -3,6 +3,7 @@ class EventsLog extends HTMLElement {
         super();
         this.attachShadow({ mode: 'open' });
         this.render();
+        this.lastScrollPosition = 0;
     }
     
     connectedCallback() {
@@ -13,72 +14,104 @@ class EventsLog extends HTMLElement {
         this.shadowRoot.innerHTML = `
             <style>
                 :host {
-                    display: block;
-                    margin-top: 20px;
+                    display: flex;
+                    flex-direction: column;
+                    height: 100%;
+                    width: 100%;
+                    overflow: hidden;
                 }
                 .events-container {
-                    max-height: 120px;
+                    flex-grow: 1;
                     overflow-y: auto;
-                    border: 1px solid #ddd;
-                    border-radius: 5px;
                     padding: 10px;
+                    font-size: 0.9em;
                     background-color: #f9f9f9;
                 }
                 .event {
                     margin-bottom: 5px;
-                    padding-bottom: 5px;
-                    border-bottom: 1px solid #eee;
-                    font-size: 0.9em;
+                    padding: 5px;
+                    border-bottom: 1px dotted #ddd;
+                }
+                .event:nth-child(even) {
+                    background-color: #f5f5f5;
                 }
                 .turn-indicator {
                     color: #666;
                     font-weight: bold;
                     margin-right: 5px;
                 }
-                h2 {
-                    text-align: center;
-                    margin-bottom: 10px;
-                    color: #333;
-                    font-size: 1.2em;
-                }
                 .no-events {
                     color: #999;
                     text-align: center;
                     font-style: italic;
+                    padding: 20px;
+                }
+                .raid-alert {
+                    color: #d32f2f;
+                    font-weight: bold;
+                    background-color: rgba(255, 0, 0, 0.05);
                 }
             </style>
             
-            <h2>Event Log</h2>
             <div class="events-container" id="events-list">
                 <div class="no-events">No events yet...</div>
             </div>
         `;
+
+        // Save reference to the events container
+        this.eventsContainer = this.shadowRoot.getElementById('events-list');
+        
+        // Add scroll position tracking
+        this.eventsContainer.addEventListener('scroll', () => {
+            this.lastScrollPosition = this.eventsContainer.scrollTop;
+        });
     }
     
     updateEvents() {
         const gameState = window.gameState;
         if (!gameState) return;
         
-        const eventsContainer = this.shadowRoot.getElementById('events-list');
-        
         if (gameState.events.length === 0) {
-            eventsContainer.innerHTML = '<div class="no-events">No events yet...</div>';
+            this.eventsContainer.innerHTML = '<div class="no-events">No events yet...</div>';
             return;
         }
+
+        // Remember if we're near the bottom before updating
+        const isAtBottom = this.isScrolledNearBottom();
         
-        eventsContainer.innerHTML = gameState.events
+        // Save current scroll position
+        const previousScroll = this.lastScrollPosition;
+        
+        this.eventsContainer.innerHTML = gameState.events
             .slice()
             .reverse()
-            .map(event => `
-                <div class="event">
-                    <span class="turn-indicator">Turn ${event.turn}:</span>
-                    ${event.message}
-                </div>
-            `)
+            .map(event => {
+                const isRaid = event.message.includes('RAID ALERT');
+                return `
+                    <div class="event ${isRaid ? 'raid-alert' : ''}">
+                        <span class="turn-indicator">Turn ${event.turn}:</span>
+                        ${event.message.replace('RAID ALERT: ', '')}
+                    </div>
+                `;
+            })
             .join('');
             
-        // Auto-scroll to bottom
-        eventsContainer.scrollTop = eventsContainer.scrollHeight;
+        // Restore scroll position or scroll to bottom only if we were already at the bottom
+        if (isAtBottom) {
+            this.scrollToBottom();
+        } else {
+            this.eventsContainer.scrollTop = previousScroll;
+        }
+    }
+    
+    isScrolledNearBottom() {
+        const tolerance = 50; // pixels from bottom to consider "at bottom"
+        return this.eventsContainer.scrollHeight - this.eventsContainer.scrollTop - this.eventsContainer.clientHeight < tolerance;
+    }
+    
+    scrollToBottom() {
+        this.eventsContainer.scrollTop = this.eventsContainer.scrollHeight;
+        this.lastScrollPosition = this.eventsContainer.scrollTop;
     }
 }
 

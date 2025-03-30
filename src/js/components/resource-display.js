@@ -49,6 +49,7 @@ class ResourceDisplay extends HTMLElement {
                 .wood { color: #795548; }
                 .stone { color: #9E9E9E; }
                 .population { color: #2196F3; }
+                .science { color: #9C27B0; }
             </style>
             
             <div class="resources">
@@ -71,6 +72,12 @@ class ResourceDisplay extends HTMLElement {
                 </div>
                 
                 <div class="resource">
+                    <div class="resource-name">Science</div>
+                    <div class="resource-value science" id="science-value">0</div>
+                    <div class="production" id="science-production">+0/turn</div>
+                </div>
+                
+                <div class="resource">
                     <div class="resource-name">Population</div>
                     <div class="resource-value population" id="population-value">0/0</div>
                     <div class="production" id="food-consumption">-0 food/turn</div>
@@ -83,23 +90,28 @@ class ResourceDisplay extends HTMLElement {
         const gameState = window.gameState;
         if (!gameState) return;
         
+        // Format numbers to 1 decimal place
+        const formatNumber = (num) => Number(num.toFixed(1));
+        
         // Update resource values
-        this.shadowRoot.getElementById('food-value').textContent = gameState.resources.food;
-        this.shadowRoot.getElementById('wood-value').textContent = gameState.resources.wood;
-        this.shadowRoot.getElementById('stone-value').textContent = gameState.resources.stone;
+        this.shadowRoot.getElementById('food-value').textContent = formatNumber(gameState.resources.food);
+        this.shadowRoot.getElementById('wood-value').textContent = formatNumber(gameState.resources.wood);
+        this.shadowRoot.getElementById('stone-value').textContent = formatNumber(gameState.resources.stone);
+        this.shadowRoot.getElementById('science-value').textContent = formatNumber(gameState.resources.science);
         
         // Update population
         this.shadowRoot.getElementById('population-value').textContent = 
             `${gameState.population.current}/${gameState.population.capacity}`;
         
         // Update production rates
-        this.shadowRoot.getElementById('food-production').textContent = `+${gameState.production.food}/turn`;
-        this.shadowRoot.getElementById('wood-production').textContent = `+${gameState.production.wood}/turn`;
-        this.shadowRoot.getElementById('stone-production').textContent = `+${gameState.production.stone}/turn`;
+        this.shadowRoot.getElementById('food-production').textContent = `+${formatNumber(gameState.production.food)}/turn`;
+        this.shadowRoot.getElementById('wood-production').textContent = `+${formatNumber(gameState.production.wood)}/turn`;
+        this.shadowRoot.getElementById('stone-production').textContent = `+${formatNumber(gameState.production.stone)}/turn`;
+        this.shadowRoot.getElementById('science-production').textContent = `+${formatNumber(gameState.production.science)}/turn`;
         
         // Update food consumption
         const consumption = gameState.population.current * gameState.population.foodConsumptionPerPerson;
-        this.shadowRoot.getElementById('food-consumption').textContent = `-${consumption} food/turn`;
+        this.shadowRoot.getElementById('food-consumption').textContent = `-${formatNumber(consumption)} food/turn`;
     }
 }
 

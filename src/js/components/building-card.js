@@ -115,6 +115,21 @@ class BuildingCard extends HTMLElement {
                 effect: "+2 Stone per turn",
                 costs: { wood: 5, stone: 3 }
             },
+            library: {
+                title: "Library",
+                effect: "+1.5 Science per turn",
+                costs: { wood: 8, stone: 5 }
+            },
+            barracks: {
+                title: "Barracks",
+                effect: "+5 Defense, train units",
+                costs: { wood: 10, stone: 5 }
+            },
+            wall: {
+                title: "Wall",
+                effect: "+10 Defense",
+                costs: { wood: 5, stone: 15 }
+            },
             monument: {
                 title: "Monument",
                 effect: "Win the game!",

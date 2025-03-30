@@ -3,6 +3,8 @@
     --wood-color: #795548;
     --stone-color: #9E9E9E;
     --population-color: #2196F3;
+    --science-color: #9C27B0;
+    --defense-color: #FF5722;
 }
 
 * {
@@ -18,42 +20,174 @@ body {
     justify-content: center;
     align-items: center;
     min-height: 100vh;
+    margin: 0;
+    padding: 0;
 }
 
 .game-container {
     background-color: white;
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    width: 800px;
-    max-width: 95%;
+    width: 90vw;
+    height: 95vh;
+    max-width: 1200px;
     overflow: hidden;
+    display: flex;
+    flex-direction: column;
 }
 
 header {
     background-color: #333;
     color: white;
-    padding: 15px;
+    padding: 8px;
+    text-align: center;
+    flex-shrink: 0;
+}
+
+header h1 {
+    font-size: 1.5rem;
+    margin-bottom: 5px;
+}
+
+.game-info {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    margin-top: 5px;
+    font-size: 0.85em;
+    background-color: #444;
+    padding: 5px;
+    border-radius: 4px;
+}
+
+.info-item {
+    padding: 0 8px;
+}
+
+.main-content {
+    display: flex;
+    flex-grow: 1;
+    overflow: hidden;
+}
+
+.left-panel {
+    width: 220px;
+    flex-shrink: 0;
+    overflow-y: auto;
+    border-right: 1px solid #ddd;
+}
+
+.game-view {
+    display: flex;
+    flex-grow: 1;
+    overflow: hidden;
+}
+
+.central-area {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+}
+
+.right-panel {
+    width: 280px;
+    flex-shrink: 0;
+    overflow-y: auto;
+    border-left: 1px solid #ddd;
+    background-color: #f9f9f9;
+    display: flex;
+    flex-direction: column;
+}
+
+.strategic-controls {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 5px;
+    padding: 8px;
+    background-color: #f0f0f0;
+    border-bottom: 1px solid #ddd;
+}
+
+.control-panel {
+    flex: 1;
+    min-width: 180px;
+    padding: 8px;
+    border-radius: 6px;
+    background-color: white;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.control-panel h3 {
+    margin-bottom: 5px;
+    color: #333;
+    font-size: 0.9em;
     text-align: center;
 }
 
+.terrain-panel {
+    border-left: 4px solid #8D6E63;
+}
+
+.technology-panel {
+    border-left: 4px solid var(--science-color);
+}
+
+.military-panel {
+    border-left: 4px solid var(--defense-color);
+}
+
+select, button {
+    width: 100%;
+    padding: 6px;
+    margin-bottom: 5px;
+    border-radius: 4px;
+    border: 1px solid #ddd;
+    font-size: 0.9em;
+}
+
+select {
+    background-color: white;
+}
+
+.hint {
+    font-size: 0.75em;
+    color: #777;
+    text-align: center;
+    margin-top: 3px;
+}
+
+.research-progress {
+    margin-bottom: 5px;
+    font-size: 0.85em;
+}
+
+progress {
+    width: 100%;
+    height: 8px;
+    margin: 3px 0;
+}
+
 footer {
-    padding: 15px;
+    padding: 8px;
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
     align-items: center;
     background-color: #f0f0f0;
+    flex-shrink: 0;
 }
 
 button {
     background-color: #4CAF50;
     border: none;
     color: white;
-    padding: 8px 16px;
+    padding: 6px 12px;
     text-align: center;
     text-decoration: none;
     display: inline-block;
-    font-size: 14px;
-    margin: 4px 2px;
+    font-size: 0.9em;
+    margin: 2px;
     cursor: pointer;
     border-radius: 4px;
     transition: background-color 0.3s;
@@ -68,32 +202,46 @@ button:disabled {
     cursor: not-allowed;
 }
 
+.end-turn {
+    background-color: #2196F3;
+    font-size: 1.1em;
+    padding: 8px 25px;
+}
+
+.end-turn:hover {
+    background-color: #0b7dda;
+}
+
 .resource {
     display: inline-flex;
     align-items: center;
-    margin-right: 15px;
+    margin-right: 10px;
     font-weight: bold;
+    font-size: 0.9em;
 }
 
 .resource-food { color: var(--food-color); }
 .resource-wood { color: var(--wood-color); }
 .resource-stone { color: var(--stone-color); }
 .resource-population { color: var(--population-color); }
+.resource-science { color: var(--science-color); }
+.resource-defense { color: var(--defense-color); }
 
 .building-card {
     border: 1px solid #ddd;
     border-radius: 4px;
-    padding: 10px;
-    margin: 8px;
-    width: 180px;
+    padding: 8px;
+    margin: 5px;
+    width: 150px;
     background-color: white;
     transition: transform 0.2s;
     cursor: pointer;
+    font-size: 0.9em;
 }
 
 .building-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    transform: translateY(-3px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .building-card.disabled {
@@ -105,13 +253,14 @@ button:disabled {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
-    padding: 15px;
+    padding: 10px;
 }
 
 .resources-display {
     display: flex;
     justify-content: space-around;
-    padding: 15px;
+    flex-wrap: wrap;
+    padding: 10px;
     background-color: #f9f9f9;
     border-bottom: 1px solid #eee;
 }
@@ -144,11 +293,160 @@ button:disabled {
 }
 
 .events-log {
-    max-height: 100px;
-    overflow-y: auto;
+    flex-grow: 1;
     padding: 8px;
-    background-color: #f8f8f8;
+    font-size: 0.85em;
+    color: #555;
+    overflow-y: auto;
+    min-height: 0;
+    max-height: none;
+}
+
+.events-log-header {
+    padding: 10px;
+    background-color: #444;
+    color: white;
+    font-weight: bold;
+    text-align: center;
+    border-bottom: 1px solid #333;
+}
+
+.events-log .event {
+    padding: 5px;
+    border-bottom: 1px dotted #ddd;
+}
+
+.events-log .event:nth-child(even) {
+    background-color: #f5f5f5;
+}
+
+.events-log .event.raid {
+    color: #d32f2f;
+    font-weight: bold;
+    background-color: rgba(255, 0, 0, 0.05);
+}
+
+.info-section {
+    padding: 8px;
+    background-color: #f9f9f9;
     border-top: 1px solid #eee;
     font-size: 0.9em;
-    color: #555;
+}
+
+.info-section h3 {
+    margin-bottom: 5px;
+    color: #333;
+    font-size: 0.95em;
+}
+
+#production-multipliers {
+    list-style-type: none;
+    font-size: 0.8em;
+    color: #666;
+}
+
+#production-multipliers li {
+    padding: 2px 0;
+}
+
+/* Modal styles for trade dialog */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.7);
+}
+
+.modal-content {
+    background-color: #fefefe;
+    margin: 15% auto;
+    padding: 15px;
+    border: 1px solid #888;
+    width: 80%;
+    max-width: 500px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 8px;
+    margin-bottom: 10px;
+}
+
+.modal-header h2 {
+    font-size: 1.2em;
+}
+
+.close-btn {
+    color: #aaa;
+    font-size: 24px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.close-btn:hover {
+    color: #333;
+}
+
+.trade-option {
+    background-color: #f9f9f9;
+    padding: 8px;
+    margin: 8px 0;
+    border-radius: 4px;
+    border: 1px solid #eee;
+}
+
+.trade-btn {
+    background-color: #FFC107;
+    width: auto;
+}
+
+.trade-btn:hover {
+    background-color: #FFA000;
+}
+
+/* Adjustments for smaller screens */
+@media (max-height: 700px) {
+    .game-container {
+        height: 98vh;
+    }
+    
+    header {
+        padding: 5px;
+    }
+    
+    .strategic-controls {
+        padding: 5px;
+    }
+    
+    .control-panel {
+        padding: 5px;
+    }
+    
+    .events-log {
+        max-height: 100px;
+    }
+    
+    .building-card {
+        margin: 3px;
+        padding: 5px;
+        width: 140px;
+    }
+}
+
+/* Fix for game-ui component */
+game-ui {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    overflow: hidden;
 }
