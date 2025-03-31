@@ -75,4 +75,4 @@ Research technologies to improve resource production and unlock new buildings.
 
 ## License
 
-[MIT or other appropriate license for your project]
+Have fun!
