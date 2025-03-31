@@ -27,77 +27,137 @@ class BuildingCard extends HTMLElement {
     
     render() {
         const buildingInfo = this.getBuildingInfo();
+        const buildingType = this.type;
+        
+        // Generate a unique color for each building type based on its name
+        const getCardAccentColor = (type) => {
+            const colors = {
+                house: '#2196F3',         // Blue
+                farm: '#8BC34A',          // Green
+                lumberMill: '#795548',    // Brown
+                quarry: '#9E9E9E',        // Gray
+                library: '#9C27B0',       // Purple
+                barracks: '#F44336',      // Red
+                wall: '#607D8B',          // Blue Gray
+                monument: '#FFC107'       // Amber
+            };
+            return colors[type] || '#3f51b5'; // Default to primary color
+        };
+
+        // Get a simple icon character for the building
+        const getBuildingIcon = (type) => {
+            const icons = {
+                house: '🏠',
+                farm: '🌾',
+                lumberMill: '🪓',
+                quarry: '⛏️',
+                library: '📚',
+                barracks: '⚔️',
+                wall: '🧱',
+                monument: '🏛️'
+            };
+            return icons[type] || '🏢';
+        };
+        
+        const accentColor = getCardAccentColor(buildingType);
+        const icon = getBuildingIcon(buildingType);
         
         this.shadowRoot.innerHTML = `
             <style>
                 :host {
                     display: block;
+                    margin: 5px;
                 }
                 .card {
-                    border: 1px solid #ddd;
-                    border-radius: 6px;
-                    padding: 10px;
-                    background: linear-gradient(to bottom, #ffffff, #f9f9f9);
-                    transition: all 0.2s ease;
+                    height: 180px;
+                    border-radius: 12px;
+                    background: #ffffff;
+                    transition: all 0.3s ease;
                     cursor: pointer;
-                    height: 100%;
                     display: flex;
                     flex-direction: column;
-                    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                    box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+                    position: relative;
+                    overflow: hidden;
+                    border: 1px solid #eaeaea;
                 }
                 .card:hover:not(.disabled) {
-                    transform: translateY(-3px);
-                    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
-                    border-color: #aaa;
+                    transform: translateY(-5px);
+                    box-shadow: 0 8px 15px rgba(0,0,0,0.2);
                 }
                 .disabled {
-                    opacity: 0.6;
+                    opacity: 0.7;
                     cursor: not-allowed;
-                    background: linear-gradient(to bottom, #f5f5f5, #eeeeee);
+                    background: #f8f8f8;
                 }
-                .building-header {
+                .card-accent {
+                    height: 8px;
+                    background-color: ${accentColor};
+                    width: 100%;
+                }
+                .card-header {
+                    padding: 12px 15px;
                     display: flex;
                     justify-content: space-between;
                     align-items: center;
-                    margin-bottom: 6px;
+                    border-bottom: 1px solid #f0f0f0;
                 }
                 .building-title {
                     font-weight: bold;
-                    font-size: 1em;
+                    font-size: 1.1em;
                     color: #333;
+                    display: flex;
+                    align-items: center;
+                    gap: 6px;
+                }
+                .building-icon {
+                    font-size: 1.2em;
                 }
                 .building-count {
-                    background-color: #f0f0f0;
-                    border-radius: 10px;
-                    padding: 2px 6px;
-                    font-size: 0.8em;
-                    color: #666;
+                    background-color: ${accentColor}22;
+                    color: ${accentColor};
+                    border-radius: 12px;
+                    padding: 3px 10px;
+                    font-size: 0.85em;
+                    font-weight: bold;
+                }
+                .card-body {
+                    padding: 12px 15px;
+                    flex-grow: 1;
+                    display: flex;
+                    flex-direction: column;
                 }
                 .building-effect {
-                    margin: 6px 0;
-                    color: #3f51b5;
-                    font-size: 0.8em;
+                    color: #555;
+                    font-size: 0.9em;
+                    margin-bottom: 12px;
+                    flex-grow: 1;
                 }
                 .cost-section {
                     margin-top: auto;
-                    padding-top: 6px;
-                    border-top: 1px dotted #eee;
+                    padding-top: 10px;
+                    border-top: 1px dashed #eee;
                 }
                 .cost-title {
-                    font-size: 0.7em;
+                    font-size: 0.75em;
                     color: #888;
-                    margin-bottom: 3px;
+                    margin-bottom: 6px;
+                    text-transform: uppercase;
+                    letter-spacing: 0.5px;
                 }
                 .cost {
                     display: flex;
                     justify-content: flex-start;
-                    gap: 8px;
-                    font-size: 0.8em;
+                    gap: 12px;
+                    font-size: 0.85em;
                 }
                 .cost-item {
                     display: flex;
                     align-items: center;
-                    gap: 3px;
+                    gap: 5px;
+                    background-color: #f9f9f9;
+                    padding: 4px 8px;
+                    border-radius: 4px;
                 }
                 .cost-icon {
                     width: 10px;
@@ -119,37 +179,55 @@ class BuildingCard extends HTMLElement {
                 .locked::after {
                     content: "🔒";
                     position: absolute;
-                    top: 8px;
-                    right: 8px;
-                    font-size: 0.9em;
+                    top: 10px;
+                    right: 10px;
+                    font-size: 1.2em;
+                    filter: grayscale(1);
                 }
                 
                 .requirement-msg {
-                    margin-top: 6px;
-                    font-size: 0.7em;
+                    font-size: 0.75em;
                     color: #FF5722;
+                    margin-top: 6px;
+                    text-align: center;
+                }
+
+                @keyframes buildPulse {
+                    0% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.7); }
+                    70% { box-shadow: 0 0 0 10px rgba(76, 175, 80, 0); }
+                    100% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0); }
+                }
+                
+                .pulse {
+                    animation: buildPulse 1s;
                 }
             </style>
             
             <div class="card">
-                <div class="building-header">
-                    <div class="building-title">${buildingInfo.title}</div>
+                <div class="card-accent"></div>
+                <div class="card-header">
+                    <div class="building-title">
+                        <span class="building-icon">${icon}</span>
+                        <span>${buildingInfo.title}</span>
+                    </div>
                     <div class="building-count" id="count">0</div>
                 </div>
-                <div class="building-effect">${buildingInfo.effect}</div>
-                <div class="cost-section">
-                    <div class="cost-title">Cost</div>
-                    <div class="cost">
-                        ${buildingInfo.costs.wood ? `
-                            <div class="cost-item">
-                                <span class="cost-icon wood-icon"></span>
-                                <span>${buildingInfo.costs.wood}</span>
-                            </div>` : ''}
-                        ${buildingInfo.costs.stone ? `
-                            <div class="cost-item">
-                                <span class="cost-icon stone-icon"></span>
-                                <span>${buildingInfo.costs.stone}</span>
-                            </div>` : ''}
+                <div class="card-body">
+                    <div class="building-effect">${buildingInfo.effect}</div>
+                    <div class="cost-section">
+                        <div class="cost-title">Resources Needed</div>
+                        <div class="cost">
+                            ${buildingInfo.costs.wood ? `
+                                <div class="cost-item">
+                                    <span class="cost-icon wood-icon"></span>
+                                    <span>${buildingInfo.costs.wood}</span>
+                                </div>` : ''}
+                            ${buildingInfo.costs.stone ? `
+                                <div class="cost-item">
+                                    <span class="cost-icon stone-icon"></span>
+                                    <span>${buildingInfo.costs.stone}</span>
+                                </div>` : ''}
+                        </div>
                     </div>
                 </div>
                 <div class="requirement-msg" id="requirement-msg"></div>
@@ -213,15 +291,20 @@ class BuildingCard extends HTMLElement {
             if (!gameState) return;
             
             if (gameState.canAfford(this.type) && gameState.meetsRequirements(this.type)) {
-                gameState.build(this.type);
+                const success = gameState.build(this.type);
                 
-                // Provide visual feedback on successful build
-                this.showBuildFeedback();
-                
-                // Update UI through game-ui component or document events
-                const gameUI = document.querySelector('game-ui');
-                if (gameUI) {
-                    gameUI.updateUI();
+                if (success) {
+                    // Immediately update count display instead of waiting for end turn
+                    this.updateBuildingInfo();
+                    
+                    // Provide visual feedback on successful build
+                    this.showBuildFeedback();
+                    
+                    // Update UI through game-ui component or document events
+                    const gameUI = document.querySelector('game-ui');
+                    if (gameUI) {
+                        gameUI.updateUI();
+                    }
                 }
             }
         });
@@ -229,12 +312,12 @@ class BuildingCard extends HTMLElement {
     
     showBuildFeedback() {
         const card = this.shadowRoot.querySelector('.card');
-        card.style.backgroundColor = '#e8f5e9'; // Light green flash
+        card.classList.add('pulse');
         
         // Reset after animation
         setTimeout(() => {
-            card.style.backgroundColor = '';
-        }, 500);
+            card.classList.remove('pulse');
+        }, 1000);
     }
     
     updateBuildingInfo() {

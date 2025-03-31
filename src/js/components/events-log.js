@@ -64,29 +64,66 @@ class EventsLog extends HTMLElement {
                     font-style: italic;
                     padding: 20px;
                 }
-                .raid-alert {
+                
+                /* Event type styles */
+                .event-negative {
                     border-left: 3px solid #d32f2f;
                     background-color: #ffebee;
                 }
-                .raid-alert .turn-indicator {
+                .event-negative .turn-indicator {
                     background-color: #ef9a9a;
                     color: #b71c1c;
                 }
-                .positive-event {
-                    border-left: 3px solid #4CAF50;
+                .event-negative .event-message {
+                    color: #c62828;
                 }
-                .resource-discovery {
-                    border-left: 3px solid #2196F3;
+                
+                .event-food {
+                    border-left: 3px solid #8BC34A;
                 }
-                .tech-event {
+                .event-food .event-message {
+                    color: #558b2f;
+                }
+                
+                .event-wood {
+                    border-left: 3px solid #795548;
+                }
+                .event-wood .event-message {
+                    color: #4e342e;
+                }
+                
+                .event-stone {
+                    border-left: 3px solid #9E9E9E;
+                }
+                .event-stone .event-message {
+                    color: #424242;
+                }
+                
+                .event-science {
                     border-left: 3px solid #9C27B0;
                 }
-                .trade-event {
+                .event-science .event-message {
+                    color: #6a1b9a;
+                }
+                
+                .event-population {
+                    border-left: 3px solid #2196F3;
+                }
+                .event-population .event-message {
+                    color: #0d47a1;
+                }
+                
+                .event-trade {
                     border-left: 3px solid #FF9800;
                 }
-                .seasonal-event {
+                .event-trade .event-message {
+                    color: #e65100;
+                }
+                
+                .event-season {
                     border-left: 3px solid #009688;
                 }
+                
                 .clear-btn {
                     padding: 6px 10px;
                     margin: 10px;
@@ -149,27 +186,13 @@ class EventsLog extends HTMLElement {
             .slice()
             .reverse()
             .map(event => {
-                let eventClass = 'event';
-                
                 // Determine event type for styling
-                if (event.message.includes('RAID ALERT')) {
-                    eventClass += ' raid-alert';
-                } else if (event.message.includes('Harvest') || event.message.includes('joined your civilization')) {
-                    eventClass += ' positive-event';
-                } else if (event.message.includes('Discovery')) {
-                    eventClass += ' resource-discovery';
-                } else if (event.message.includes('technology') || event.message.includes('Research complete')) {
-                    eventClass += ' tech-event';
-                } else if (event.message.includes('Trade')) {
-                    eventClass += ' trade-event';
-                } else if (event.message.includes('season')) {
-                    eventClass += ' seasonal-event';
-                }
+                let eventClass = this.determineEventClass(event.message);
                 
                 const cleanMessage = event.message.replace('RAID ALERT: ', '');
                 
                 return `
-                    <div class="${eventClass}">
+                    <div class="event ${eventClass}">
                         <span class="turn-indicator">Turn ${event.turn}</span>
                         <span class="event-message">${cleanMessage}</span>
                     </div>
@@ -183,6 +206,83 @@ class EventsLog extends HTMLElement {
         } else {
             this.eventsContainer.scrollTop = previousScroll;
         }
+    }
+    
+    determineEventClass(message) {
+        // Check for negative events
+        if (
+            message.includes('RAID ALERT') ||
+            message.includes('Lost') ||
+            message.includes('starved') ||
+            message.includes('Epidemic') ||
+            message.includes('destroyed') ||
+            message.includes('Wood Rot') ||
+            message.includes('shortage') ||
+            message.includes('disease')
+        ) {
+            return 'event-negative';
+        }
+        
+        // Check for food-related positive events
+        if (
+            message.includes('food') ||
+            message.includes('Farm') ||
+            message.includes('Harvest') ||
+            message.includes('Agriculture')
+        ) {
+            return 'event-food';
+        }
+        
+        // Check for wood-related events
+        if (
+            message.includes('wood') ||
+            message.includes('Lumber Mill') ||
+            message.includes('Woodworking')
+        ) {
+            return 'event-wood';
+        }
+        
+        // Check for stone-related events
+        if (
+            message.includes('stone') ||
+            message.includes('Quarry') ||
+            message.includes('Mining')
+        ) {
+            return 'event-stone';
+        }
+        
+        // Check for science-related events
+        if (
+            message.includes('Science') ||
+            message.includes('Library') ||
+            message.includes('Research') ||
+            message.includes('technology')
+        ) {
+            return 'event-science';
+        }
+        
+        // Check for population-related events
+        if (
+            message.includes('Population') ||
+            message.includes('House') ||
+            message.includes('people joined') ||
+            message.includes('capacity')
+        ) {
+            return 'event-population';
+        }
+        
+        // Check for trade events
+        if (message.includes('Trade')) {
+            return 'event-trade';
+        }
+        
+        // Check for season changes
+        if (message.includes('Season changed') || message.includes('is coming')) {
+            return 'event-season';
+        }
+        
+        // Default - no special styling
+        return '';
     }
     
     isScrolledNearBottom() {

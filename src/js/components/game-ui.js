@@ -36,32 +36,63 @@ class GameUI extends HTMLElement {
                     flex-direction: column;
                 }
                 .buildings-section {
-                    margin-top: 5px;
+                    margin-top: 10px;
+                    padding-bottom: 20px;
                 }
                 .buildings-container {
-                    display: flex;
-                    flex-wrap: wrap;
-                    gap: 5px;
+                    display: grid;
+                    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+                    gap: 20px;
+                    padding: 15px;
                     justify-content: center;
-                    padding: 5px;
                 }
                 h2 {
                     text-align: center;
-                    margin: 5px 0;
+                    margin: 10px 0;
                     color: #333;
-                    font-size: 1.1em;
+                    font-size: 1.2em;
+                    position: relative;
+                }
+                h2::after {
+                    content: '';
+                    position: absolute;
+                    bottom: -5px;
+                    left: 50%;
+                    transform: translateX(-50%);
+                    width: 60px;
+                    height: 3px;
+                    background-color: #3f51b5;
+                    border-radius: 2px;
                 }
                 .category-title {
                     display: flex;
                     align-items: center;
-                    justify-content: center;
-                    margin-top: 10px;
-                    padding: 3px;
-                    background-color: #f5f5f5;
-                    border-radius: 3px;
-                    font-size: 0.85em;
+                    margin: 25px 15px 10px;
+                    position: relative;
+                }
+                .category-title::before {
+                    content: '';
+                    flex-grow: 1;
+                    height: 1px;
+                    background-color: #e0e0e0;
+                    margin-right: 15px;
+                }
+                .category-title::after {
+                    content: '';
+                    flex-grow: 1;
+                    height: 1px;
+                    background-color: #e0e0e0;
+                    margin-left: 15px;
+                }
+                .category-label {
+                    font-size: 0.9em;
                     font-weight: bold;
                     color: #555;
+                    text-transform: uppercase;
+                    letter-spacing: 1px;
+                    background-color: #f5f5f5;
+                    border-radius: 20px;
+                    padding: 5px 15px;
                 }
                 .win-overlay {
                     position: fixed;
@@ -99,7 +130,9 @@ class GameUI extends HTMLElement {
                 <div class="buildings-section">
                     <h2>Buildings</h2>
                     
-                    <div class="category-title">Resources</div>
+                    <div class="category-title">
+                        <span class="category-label">Resource Production</span>
+                    </div>
                     <div class="buildings-container">
                         <building-card type="house"></building-card>
                         <building-card type="farm"></building-card>
@@ -108,13 +141,17 @@ class GameUI extends HTMLElement {
                         <building-card type="library"></building-card>
                     </div>
                     
-                    <div class="category-title">Defense</div>
+                    <div class="category-title">
+                        <span class="category-label">Military & Defense</span>
+                    </div>
                     <div class="buildings-container">
                         <building-card type="barracks"></building-card>
                         <building-card type="wall"></building-card>
                     </div>
                     
-                    <div class="category-title">Victory</div>
+                    <div class="category-title">
+                        <span class="category-label">Victory Monument</span>
+                    </div>
                     <div class="buildings-container">
                         <building-card type="monument"></building-card>
                     </div>
