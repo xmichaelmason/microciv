@@ -16,21 +16,6 @@ MicroCiv is a lightweight strategy game where players build and manage a small c
 - **Military Defense**: Build defenses and train units to protect against raids
 - **Random Events**: Experience various random events that can help or hinder your progress
 
-## Installation
-
-1. Clone the repository:
-   ```
-   git clone https://github.com/xmichaelmason/microciv.git
-   cd microciv
-   ```
-
-2. Open the game:
-   ```
-   open index.html
-   ```
-
-Alternatively, you can host it on any basic web server.
-
 ## How to Play
 
 - **Build Buildings**: Click on building cards to construct them when you have enough resources
