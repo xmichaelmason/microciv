@@ -2,6 +2,8 @@
 
 A minimalist, browser-based civilization-building strategy game implemented in JavaScript.
 
+[Play here](https://xmichaelmason.github.io/microciv/)
+
 ## Description
 
 MicroCiv is a lightweight strategy game where players build and manage a small civilization. The game features resource management, building construction, technology research, and adaptive survival mechanics with changing seasons and terrain.
@@ -15,21 +17,6 @@ MicroCiv is a lightweight strategy game where players build and manage a small c
 - **Terrain Selection**: Choose different terrain types that influence your economy
 - **Military Defense**: Build defenses and train units to protect against raids
 - **Random Events**: Experience various random events that can help or hinder your progress
-
-## Installation
-
-1. Clone the repository:
-   ```
-   git clone https://github.com/yourusername/microciv.git
-   cd microciv
-   ```
-
-2. Open the game:
-   ```
-   open index.html
-   ```
-
-Alternatively, you can host it on any basic web server.
 
 ## How to Play
 
@@ -75,4 +62,4 @@ Research technologies to improve resource production and unlock new buildings.
 
 ## License
 
-[MIT or other appropriate license for your project]
+Have fun!
