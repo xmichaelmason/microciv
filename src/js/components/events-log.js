@@ -138,6 +138,54 @@ class EventsLog extends HTMLElement {
                 .clear-btn:hover {
                     background: #e0e0e0;
                 }
+                
+                /* Responsive styles */
+                @media (max-width: 768px) {
+                    .events-container {
+                        padding: 5px;
+                    }
+                    .event {
+                        padding: 6px 8px;
+                        margin-bottom: 6px;
+                        font-size: 0.95em;
+                    }
+                }
+                
+                @media (max-width: 576px) {
+                    .event {
+                        padding: 5px;
+                        margin-bottom: 5px;
+                    }
+                    .turn-indicator {
+                        font-size: 0.7em;
+                        padding: 1px 4px;
+                    }
+                    .clear-btn {
+                        padding: 8px 12px;
+                        width: 100%;
+                        margin: 5px 0;
+                        align-self: center;
+                    }
+                    .event-message {
+                        font-size: 0.9em;
+                    }
+                }
+                
+                /* Mobile touch improvements */
+                @media (hover: none) and (pointer: coarse) {
+                    .clear-btn {
+                        min-height: 44px;
+                    }
+                    
+                    .event {
+                        padding-top: 8px;
+                        padding-bottom: 8px;
+                    }
+                    
+                    .events-container {
+                        -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+                    }
+                }
             </style>
             
             <div class="events-container" id="events-list">

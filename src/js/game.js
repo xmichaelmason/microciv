@@ -42,6 +42,22 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
     
+    // Add mobile touch event handling to improve scrolling
+    setupMobileScrolling();
+    
+    // Fix tab scrolling immediately on load
+    setTimeout(fixTabScrolling, 100);
+    
+    // Call again when resize happens
+    window.addEventListener('resize', () => {
+        fixTabScrolling();
+    });
+    
+    // And when device orientation changes
+    window.addEventListener('orientationchange', () => {
+        setTimeout(fixTabScrolling, 100);
+    });
+    
     function setupTabs() {
         const tabBtns = document.querySelectorAll('.tab-btn');
         const tabPanes = document.querySelectorAll('.tab-pane');
@@ -58,8 +74,24 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Show the corresponding pane
                 const tabId = btn.getAttribute('data-tab');
                 document.getElementById(`${tabId}-tab`).classList.add('active');
+                
+                // Fix scrolling for the newly activated tab
+                fixTabScrolling();
+                
+                // Scroll to top when switching tabs
+                const activePane = document.querySelector('.tab-pane.active');
+                if (activePane) {
+                    activePane.scrollTop = 0;
+                }
             });
         });
+        
+        // Initial call to set proper scrolling for the default active tab
+        fixTabScrolling();
+        
+        // Listen for resize and orientation change events
+        window.addEventListener('resize', fixTabScrolling);
+        window.addEventListener('orientationchange', fixTabScrolling);
     }
     
     // Initialize the events log
@@ -441,3 +473,149 @@ document.addEventListener('DOMContentLoaded', () => {
     // Initial UI update
     updateUI();
 });
+
+/**
+ * Setup improved mobile scrolling behavior to prevent default browser behaviors
+ * that might interfere with game UI scrolling
+ */
+function setupMobileScrolling() {
+    // Allow scrolling in content areas but prevent page bouncing on iOS
+    const scrollableElements = [
+        '.tab-content',
+        '.events-container', 
+        '#events-log-container',
+        '.buildings-grid',
+        '.tech-list',
+        '.tabs'
+    ];
+    
+    // Handle touch events on scrollable elements to prevent parent scrolling
+    scrollableElements.forEach(selector => {
+        document.querySelectorAll(selector).forEach(element => {
+            element.addEventListener('touchstart', function(e) {
+                // Store the initial touch position for later comparison
+                this.startY = e.touches[0].clientY;
+                this.startX = e.touches[0].clientX;
+                this.scrollTop = this.scrollTop;
+                this.scrollLeft = this.scrollLeft;
+                this.scrollHeight = this.scrollHeight;
+                this.scrollWidth = this.scrollWidth;
+                this.clientHeight = this.clientHeight;
+                this.clientWidth = this.clientWidth;
+            });
+            
+            element.addEventListener('touchmove', function(e) {
+                // For vertical scrollers
+                if (this.clientHeight < this.scrollHeight) {
+                    const currentY = e.touches[0].clientY;
+                    const deltaY = this.startY - currentY;
+                    
+                    // Check if at boundaries
+                    if ((deltaY < 0 && this.scrollTop === 0) ||
+                        (deltaY > 0 && this.scrollTop + this.clientHeight >= this.scrollHeight)) {
+                        e.preventDefault();
+                    }
+                }
+                
+                // For horizontal scrollers (like tabs)
+                if (this.clientWidth < this.scrollWidth) {
+                    const currentX = e.touches[0].clientX;
+                    const deltaX = this.startX - currentX;
+                    
+                    // Check if at boundaries
+                    if ((deltaX < 0 && this.scrollLeft === 0) ||
+                        (deltaX > 0 && this.scrollLeft + this.clientWidth >= this.scrollWidth)) {
+                        e.preventDefault();
+                    }
+                }
+            }, { passive: false });
+        });
+    });
+    
+    // Prevent pull-to-refresh and other browser gestures on mobile
+    document.addEventListener('touchmove', function(e) {
+        // If the touch starts in the game container
+        if (e.target.closest('.game-container')) {
+            // Only prevent default if we're not in a scrollable element
+            if (!e.target.closest(scrollableElements.join(','))) {
+                e.preventDefault();
+            }
+        }
+    }, { passive: false });
+    
+    // Check for iOS and add body class if needed
+    if (/iPhone|iPad|iPod/.test(navigator.userAgent)) {
+        document.body.classList.add('ios-device');
+        
+        // Add specific iOS styling if needed
+        const style = document.createElement('style');
+        style.textContent = `
+            .ios-device .game-container {
+                /* iOS-specific fixes */
+                -webkit-overflow-scrolling: touch;
+                position: fixed; /* Help prevent bouncing */
+            }
+            
+            .ios-device .tab-content,
+            .ios-device .events-container {
+                -webkit-overflow-scrolling: touch;
+            }
+        `;
+        document.head.appendChild(style);
+    }
+}
+
+/**
+ * Fix scrolling specifically for tab content on mobile devices
+ * Apply proper overflow and scroll behavior directly to active tab
+ */
+function fixTabScrolling() {
+    const tabContent = document.querySelector('.tab-content');
+    const tabPanes = document.querySelectorAll('.tab-pane');
+    const activePane = document.querySelector('.tab-pane.active');
+    
+    if (!tabContent || !activePane) return;
+    
+    const isMobile = window.innerWidth <= 768;
+    
+    // On mobile, ensure the active tab content is fully scrollable
+    if (isMobile) {
+        // Set direct styles to enforce scrollability
+        activePane.style.cssText = "position: relative; height: auto; overflow-y: auto; -webkit-overflow-scrolling: touch;";
+        tabContent.style.cssText = "height: calc(100% - 45px); overflow-y: auto; -webkit-overflow-scrolling: touch;";
+        
+        // Force all grids to have sufficient bottom padding
+        const grids = activePane.querySelectorAll('.buildings-grid, .tech-list, .terrain-options, .unit-training-options');
+        grids.forEach(grid => {
+            grid.style.paddingBottom = '80px';
+        });
+
+        // Ensure the tab content is visible by calculating header height
+        const header = document.querySelector('header');
+        const tabs = document.querySelector('.tabs');
+        const totalHeaderHeight = header.offsetHeight + tabs.offsetHeight;
+        
+        // If we're on a very small screen, adjust the main content area
+        if (window.innerHeight < 700) {
+            const mainContent = document.querySelector('.main-content');
+            if (mainContent) {
+                mainContent.style.height = `calc(100% - ${totalHeaderHeight}px)`;
+            }
+        }
+    }
+}
+
+// Add this after the existing document ready event handler
+document.addEventListener('scroll', function() {
+    // Force all active tab panes to be scrollable
+    const activePane = document.querySelector('.tab-pane.active');
+    if (activePane && window.innerWidth <= 768) {
+        activePane.style.cssText = "overflow-y: scroll !important; -webkit-overflow-scrolling: touch !important; height: auto !important; min-height: 100% !important;";
+        
+        // Force all grids inside to have proper bottom padding for scrolling
+        const grids = activePane.querySelectorAll('.buildings-grid, .tech-list, .terrain-options, .unit-training-options');
+        grids.forEach(grid => {
+            grid.style.paddingBottom = '100px';
+        });
+    }
+}, { passive: true });

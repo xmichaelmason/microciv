@@ -118,10 +118,11 @@ header h1 {
 
 /* Tab System */
 .tab-container {
-    flex-grow: 1;
     display: flex;
     flex-direction: column;
-    min-width: 0;
+    flex: 1;
+    min-height: 0; /* Critical for Firefox */
+    height: 100%; /* Ensure full height */
 }
 
 .tabs {
@@ -163,9 +164,13 @@ header h1 {
     background-color: var(--tab-active-border);
 }
 
+/* Tab Content */
 .tab-content {
-    flex-grow: 1;
-    overflow: auto;
+    flex: 1;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch; /* For smooth scrolling on iOS */
+    height: calc(100% - 45px); /* Account for tab headers */
+    position: relative; /* Establish containing block */
     padding: 15px;
     background-color: white;
 }
@@ -173,11 +178,22 @@ header h1 {
 .tab-pane {
     display: none;
     height: 100%;
-    overflow: auto;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    position: absolute; /* Fix height issues */
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    padding: 15px;
 }
 
 .tab-pane.active {
     display: block;
+    position: relative;
+    height: auto;
+    min-height: 100%;
+    overflow: visible; /* Let the tab-content handle scrolling */
 }
 
 /* Buildings Tab */
@@ -583,6 +599,7 @@ header h1 {
 #events-log-container {
     flex-grow: 1;
     overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
     padding: 0;
 }
 
@@ -729,9 +746,24 @@ resource-display {
 }
 
 /* Responsive adjustments */
+@media (max-width: 1024px) {
+    .game-container {
+        width: 95vw;
+        height: 98vh;
+    }
+    
+    .buildings-grid,
+    .terrain-options,
+    .tech-list {
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    }
+}
+
+/* Force scroll on mobile */
 @media (max-width: 768px) {
     .main-content {
         flex-direction: column;
+        overflow-y: hidden;  /* Ensure no double scrollbars */
     }
     
     .events-panel {
@@ -741,21 +773,351 @@ resource-display {
         border-top: 1px solid var(--border-color);
     }
     
+    .game-status {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .status-item {
+        width: 100%;
+        justify-content: flex-start;
+    }
+    
+    .tab-btn {
+        padding: 10px 5px;
+        font-size: 0.8rem;
+    }
+    
     .buildings-grid,
     .tech-list,
     .units-overview,
     .unit-training-options,
     .terrain-options {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    }
+    
+    .tab-content {
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+        max-height: calc(100% - 45px); /* Account for tab headers */
+        height: calc(100% - 45px);
+    }
+    
+    .tab-container {
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+        min-height: 0; /* Important for flex children to respect parent height */
+        overflow: hidden;
+    }
+    
+    .tabs {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        flex-wrap: nowrap;
+        justify-content: flex-start;
+    }
+    
+    .tab-pane {
+        position: relative;
+        height: auto;
+        min-height: 100%; 
+    }
+    
+    .buildings-grid,
+    .tech-list,
+    .units-overview,
+    .unit-training-options,
+    .terrain-options {
+        padding-bottom: 100px; /* Extra space for scrolling */
+    }
+}
+
+@media (max-width: 576px) {
+    html, body {
+        overflow: auto;
+        height: 100%;
+        position: relative;
+        width: 100%;
+        margin: 0;
+        padding: 0;
+    }
+    
+    body {
+        min-height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .game-container {
+        width: 100%;
+        height: 100%;
+        min-height: 100vh;
+        max-height: none;
+        border-radius: 0;
+        position: relative;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    header {
+        flex-shrink: 0;
+        padding: 10px 8px;
+    }
+    
+    resource-display {
+        margin-bottom: 5px;
+    }
+    
+    .main-content {
+        flex: 1;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        height: auto;
+        min-height: 0;
+    }
+    
+    .tab-container {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        min-height: 0;
+    }
+    
+    .tabs {
+        flex-shrink: 0;
+        white-space: nowrap;
+        overflow-x: auto;
+    }
+    
+    .tab-content {
+        flex: 1;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+        padding: 10px 5px;
+        position: relative;
+    }
+    
+    .tab-pane {
+        height: auto;
+        min-height: 100%;
+        overflow-y: visible;
+    }
+    
+    .tab-pane.active {
+        display: block;
+        position: relative;
+    }
+    
+    .buildings-grid,
+    .tech-list,
+    .terrain-options {
+        padding-bottom: 80px;
+    }
+    
+    .events-panel {
+        flex-shrink: 0;
+        height: 150px;
+    }
+    
+    .tab-btn {
+        padding: 10px;
+        font-size: 0.9rem;
+        flex: 1 0 auto;
     }
 }
 
 @media (max-height: 700px) {
     .game-container {
-        height: 98vh;
+        height: 100vh;
     }
     
     header {
-        padding: 5px 15px;
+        padding: 5px 10px;
     }
+    
+    .game-status {
+        margin-top: 5px;
+        padding: 5px;
+    }
+    
+    .tab-content {
+        padding: 10px 5px;
+    }
+}
+
+/* Additional touch improvements */
+@media (hover: none) and (pointer: coarse) {
+    /* Increase size of interactive elements for touch */
+    .tab-btn,
+    .building-card,
+    .train-btn,
+    .tech-option,
+    .research-btn,
+    .terrain-option,
+    .trade-btn,
+    .close-btn {
+        cursor: pointer;
+        transition: transform 0.1s;
+    }
+    
+    .tab-btn:active,
+    .building-card:active,
+    .train-btn:active,
+    .tech-option:active,
+    .research-btn:active,
+    .terrain-option:active,
+    .trade-btn:active,
+    .close-btn:active {
+        transform: scale(0.97);
+    }
+    
+    /* Better tap feedback */
+    .end-turn-btn {
+        transition: background-color 0.1s;
+    }
+    
+    .end-turn-btn:active {
+        background-color: #d32f2f;
+    }
+}
+
+/* Buildings grid adjustments for small screens */
+@media (max-width: 480px) {
+    .buildings-grid {
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+        gap: 10px;
+        padding: 10px;
+    }
+    
+    .category-header {
+        margin: 10px 0 5px;
+        padding: 5px;
+        font-size: 0.8em;
+    }
+    
+    .category-header::before,
+    .category-header::after {
+        width: 25%;
+    }
+}
+
+@media (max-width: 380px) {
+    .buildings-grid {
+        grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+        gap: 6px;
+        padding: 5px;
+    }
+    
+    .category-header {
+        margin: 8px 0 3px;
+        padding: 3px;
+        font-size: 0.7em;
+    }
+    
+    /* Micro layout for ultra small screens */
+    @media (max-width: 320px) {
+        .buildings-grid {
+            grid-template-columns: repeat(3, 1fr);
+            gap: 4px;
+        }
+    }
+}
+
+/* Responsive adjustments for 864px and below */
+@media (max-width: 864px) {
+    .game-container {
+        width: 98vw;
+        height: 98vh;
+    }
+    
+    .buildings-grid,
+    .terrain-options,
+    .tech-list {
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    }
+    
+    /* Compact game status section */
+    .game-status {
+        flex-wrap: wrap;
+        padding: 6px 8px;
+        gap: 5px;
+        background-color: rgba(0, 0, 0, 0.2);
+        font-size: 0.85rem;
+    }
+    
+    .status-item {
+        display: inline-flex;
+        align-items: center;
+        gap: 3px;
+        padding: 3px 6px;
+        border-radius: 3px;
+        background-color: rgba(255, 255, 255, 0.1);
+        white-space: nowrap;
+        margin-right: 5px;
+    }
+    
+    .status-icon {
+        width: 10px;
+        height: 10px;
+    }
+    
+    header {
+        padding: 8px 10px;
+    }
+    
+    header h1 {
+        font-size: 1.3rem;
+    }
+    
+    .end-turn-btn {
+        padding: 6px 15px;
+        font-size: 0.9rem;
+    }
+    
+    .main-content {
+        flex-direction: column;
+        overflow-y: hidden;
+    }
+    
+    .events-panel {
+        width: 100%;
+        height: 180px;
+        border-left: none;
+        border-top: 1px solid var(--border-color);
+    }
+    
+    .tab-btn {
+        padding: 10px 5px;
+        font-size: 0.85rem;
+    }
+}
+
+/* Additional mobile adjustments */
+@media (max-width: 768px) {
+    /* Keep status items in a compact row */
+    .game-status {
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: flex-start;
+        align-items: center;
+        gap: 4px;
+    }
+    
+    .status-item {
+        width: auto;
+        margin-bottom: 4px;
+    }
+    
+    .buildings-grid,
+    .tech-list,
+    .units-overview,
+    .unit-training-options,
+    .terrain-options {
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    }
+    
+    /* ... existing code ... */
 }

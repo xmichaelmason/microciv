@@ -125,7 +125,7 @@ export class GameState {
         this.events = [];
         
         // Apply initial production modifiers from terrain/seasons
-        this.updateProduction();
+        this.updateProduction(false); // Pass false to avoid dispatching events during initialization
     }
     
     // Check if player can afford a building
@@ -192,6 +192,18 @@ export class GameState {
         
         // Update production after building constructed
         this.updateProduction();
+        
+        // Dispatch events using new CustomEvent objects
+        document.dispatchEvent(new CustomEvent('buildingChanged', {
+            bubbles: true,
+            detail: { gameState: this }
+        }));
+        
+        document.dispatchEvent(new CustomEvent('resourcesChanged', {
+            bubbles: true,
+            detail: { gameState: this }
+        }));
+        
         return true;
     }
     
@@ -240,11 +252,17 @@ export class GameState {
         this.tradeOptions = [];
         this.showTradeDialog = false;
         
+        // Dispatch resource change event
+        document.dispatchEvent(new CustomEvent('resourcesChanged', {
+            bubbles: true,
+            detail: { gameState: this }
+        }));
+        
         return true;
     }
     
     // Update production based on all factors
-    updateProduction() {
+    updateProduction(dispatchEvent = true) {
         // Reset to base values
         this.production = {...this.baseProduction};
         
@@ -281,6 +299,14 @@ export class GameState {
             if (this.production[resource] < 0) {
                 this.production[resource] = 0;
             }
+        }
+
+        // Dispatch resource change event only if requested (avoid during initialization)
+        if (dispatchEvent) {
+            document.dispatchEvent(new CustomEvent('resourcesChanged', {
+                bubbles: true,
+                detail: { gameState: this }
+            }));
         }
     }
     
@@ -352,12 +378,81 @@ export class GameState {
         if (seasonWarning.upcoming) {
             this.addEvent(seasonWarning.message);
         }
+
+        // Explicitly dispatch event at end of turn
+        document.dispatchEvent(new CustomEvent('resourcesChanged', {
+            bubbles: true,
+            detail: { gameState: this }
+        }));
     }
     
     addEvent(message) {
         this.events.push({ turn: this.turn, message });
         if (this.events.length > 15) {
             this.events.shift(); // Keep only the last 15 events
+        }
+    }
+
+    // Add resources (with event dispatch)
+    addResources(resources) {
+        for (const [resource, amount] of Object.entries(resources)) {
+            if (resource in this.resources) {
+                this.resources[resource] += amount;
+            }
+        }
+        // Dispatch resource change event
+        document.dispatchEvent(new CustomEvent('resourcesChanged', {
+            bubbles: true,
+            detail: { gameState: this }
+        }));
+    }
+    
+    // Spend resources (with event dispatch)
+    spendResources(resources) {
+        let spent = false;
+        for (const [resource, amount] of Object.entries(resources)) {
+            if (resource in this.resources && amount > 0) {
+                this.resources[resource] = Math.max(0, this.resources[resource] - amount);
+                spent = true;
+            }
+        }
+        
+        // Only dispatch if we actually spent something
+        if (spent) {
+            document.dispatchEvent(new CustomEvent('resourcesChanged', {
+                bubbles: true,
+                detail: { gameState: this }
+            }));
+        }
+        
+        return spent;
+    }
+    
+    // Helper method to get building display name
+    getBuildingName(buildingType) {
+        const displayNames = {
+            house: "House",
+            farm: "Farm",
+            lumberMill: "Lumber Mill",
+            quarry: "Quarry",
+            library: "Library",
+            barracks: "Barracks",
+            wall: "Wall",
+            monument: "Monument"
+        };
+        
+        return displayNames[buildingType] || buildingType;
+    }
+    
+    // Helper method to get building cost
+    getBuildingCost(buildingType) {
+        return this.buildingCosts[buildingType] || { wood: 0, stone: 0 };
+    }
+    
+    // Apply building effect
+    applyBuildingEffects(buildingType) {
+        if (this.buildingEffects[buildingType]) {
+            this.buildingEffects[buildingType]();
         }
     }
 }

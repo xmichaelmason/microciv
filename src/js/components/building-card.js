@@ -2,6 +2,9 @@ class BuildingCard extends HTMLElement {
     constructor() {
         super();
         this.attachShadow({ mode: 'open' });
+        // Bound methods for event listeners
+        this.handleResourceChange = this.updateBuildingInfo.bind(this);
+        this.handleBuildingChange = this.updateBuildingInfo.bind(this);
     }
     
     static get observedAttributes() {
@@ -12,6 +15,16 @@ class BuildingCard extends HTMLElement {
         this.render();
         this.addEventListeners();
         this.updateBuildingInfo();
+        
+        // Add global event listeners for dynamic updates
+        document.addEventListener('resourcesChanged', this.handleResourceChange);
+        document.addEventListener('buildingChanged', this.handleBuildingChange);
+    }
+    
+    disconnectedCallback() {
+        // Clean up event listeners when component is removed from DOM
+        document.removeEventListener('resourcesChanged', this.handleResourceChange);
+        document.removeEventListener('buildingChanged', this.handleBuildingChange);
     }
     
     attributeChangedCallback(name, oldValue, newValue) {
@@ -190,6 +203,20 @@ class BuildingCard extends HTMLElement {
                     color: #FF5722;
                     margin-top: 6px;
                     text-align: center;
+                    padding: 0 5px 5px;
+                    background-color: rgba(255, 87, 34, 0.05);
+                    border-radius: 0 0 12px 12px;
+                    line-height: 1.4;
+                    position: absolute;
+                    bottom: 0;
+                    left: 0;
+                    right: 0;
+                    z-index: 2;
+                }
+                
+                /* Extra space to accommodate requirement message */
+                .card-body {
+                    padding-bottom: 25px; 
                 }
 
                 @keyframes buildPulse {
@@ -200,6 +227,164 @@ class BuildingCard extends HTMLElement {
                 
                 .pulse {
                     animation: buildPulse 1s;
+                }
+                
+                /* Responsive adjustments */
+                @media (max-width: 768px) {
+                    .card {
+                        height: 170px;
+                    }
+                    .card-header {
+                        padding: 8px 10px;
+                    }
+                    .card-body {
+                        padding: 8px 10px;
+                        padding-bottom: 25px; /* Space for requirement msg */
+                    }
+                }
+                
+                @media (max-width: 576px) {
+                    .card {
+                        height: auto;
+                        min-height: 120px;
+                        border-radius: 8px;
+                    }
+                    .building-title {
+                        font-size: 0.9em;
+                    }
+                    .building-effect {
+                        margin-bottom: 8px;
+                        font-size: 0.8em;
+                    }
+                    .cost-section {
+                        padding-top: 8px;
+                    }
+                    .cost-title {
+                        font-size: 0.7em;
+                        margin-bottom: 4px;
+                    }
+                    .card-accent {
+                        height: 5px;
+                    }
+                    .building-count {
+                        padding: 2px 6px;
+                        font-size: 0.7em;
+                    }
+                }
+                
+                /* Additional compact mode for even smaller screens */
+                @media (max-width: 480px) {
+                    :host {
+                        margin: 3px;
+                    }
+                    .card {
+                        min-height: 90px;
+                        border-radius: 6px;
+                    }
+                    .card-header {
+                        padding: 5px 8px;
+                    }
+                    .card-body {
+                        padding: 5px 8px 25px;
+                    }
+                    .building-icon {
+                        font-size: 1em;
+                    }
+                    .building-title span:nth-child(2) {
+                        font-size: 0.9em;
+                    }
+                    .building-effect {
+                        font-size: 0.75em;
+                        margin-bottom: 5px;
+                    }
+                    .cost {
+                        gap: 6px;
+                        font-size: 0.75em;
+                    }
+                    .cost-item {
+                        padding: 2px 4px;
+                    }
+                    .cost-icon {
+                        width: 8px;
+                        height: 8px;
+                    }
+                    .requirement-msg {
+                        font-size: 0.65em;
+                    }
+                    .locked::after {
+                        font-size: 0.9em;
+                        top: 5px;
+                        right: 5px;
+                    }
+                }
+                
+                /* Icon-only mode for very small screens */
+                @media (max-width: 380px) {
+                    .buildings-grid {
+                        display: grid;
+                        grid-template-columns: repeat(4, 1fr);
+                        gap: 5px;
+                    }
+                    :host {
+                        margin: 2px;
+                    }
+                    .card {
+                        min-height: 75px;
+                        border-radius: 5px;
+                    }
+                    .card-accent {
+                        height: 3px;
+                    }
+                    .building-title span:nth-child(2) {
+                        display: none; /* Hide building name text */
+                    }
+                    .building-icon {
+                        font-size: 1.2em;
+                    }
+                    .building-effect {
+                        font-size: 0.7em;
+                        margin-bottom: 5px;
+                        max-height: 25px;
+                        overflow: hidden;
+                    }
+                    .cost-title {
+                        display: none;
+                    }
+                    /* Even in compact mode, ensure requirement message is visible */
+                    .requirement-msg {
+                        position: absolute;
+                        bottom: 0;
+                        font-weight: bold;
+                        padding: 2px;
+                        font-size: 0.65em;
+                        background-color: rgba(255, 87, 34, 0.1);
+                    }
+                }
+                
+                /* Touch optimizations */
+                @media (hover: none) and (pointer: coarse) {
+                    .card {
+                        -webkit-tap-highlight-color: transparent;
+                    }
+                    .card:active:not(.disabled) {
+                        transform: scale(0.98);
+                        box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+                        background-color: #fafafa;
+                    }
+                    /* Remove hover effect on mobile */
+                    .card:hover:not(.disabled) {
+                        transform: none;
+                        box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+                    }
+                    /* Increase touch target size */
+                    .card-header {
+                        min-height: 40px;
+                    }
+                    @media (max-width: 480px) {
+                        .card-header {
+                            min-height: 30px;
+                        }
+                    }
                 }
             </style>
             
@@ -286,33 +471,64 @@ class BuildingCard extends HTMLElement {
     
     addEventListeners() {
         const card = this.shadowRoot.querySelector('.card');
-        card.addEventListener('click', () => {
-            const gameState = window.gameState;
-            if (!gameState) return;
-            
-            if (gameState.canAfford(this.type) && gameState.meetsRequirements(this.type)) {
-                const success = gameState.build(this.type);
+        
+        // Add both touch and click events for better mobile response
+        ['click', 'touchend'].forEach(eventName => {
+            card.addEventListener(eventName, (e) => {
+                // For touch events, prevent default to avoid double triggering
+                if (eventName === 'touchend') {
+                    e.preventDefault();
+                }
                 
-                if (success) {
-                    // Immediately update count display instead of waiting for end turn
-                    this.updateBuildingInfo();
+                const gameState = window.gameState;
+                if (!gameState) return;
+                
+                if (gameState.canAfford(this.type) && gameState.meetsRequirements(this.type)) {
+                    const success = gameState.build(this.type);
                     
-                    // Provide visual feedback on successful build
-                    this.showBuildFeedback();
-                    
-                    // Update UI through game-ui component or document events
-                    const gameUI = document.querySelector('game-ui');
-                    if (gameUI) {
-                        gameUI.updateUI();
-                    } else {
-                        // Direct update of resource display as fallback
-                        const resourceDisplay = document.querySelector('resource-display');
-                        if (resourceDisplay) {
-                            resourceDisplay.updateResources();
+                    if (success) {
+                        // Immediately update count display instead of waiting for end turn
+                        this.updateBuildingInfo();
+                        
+                        // Provide visual feedback on successful build
+                        this.showBuildFeedback();
+                        
+                        // Dispatch events to notify resource and building changes
+                        document.dispatchEvent(new CustomEvent('resourcesChanged'));
+                        document.dispatchEvent(new CustomEvent('buildingChanged'));
+                        
+                        // Update UI through game-ui component or document events
+                        const gameUI = document.querySelector('game-ui');
+                        if (gameUI) {
+                            gameUI.updateUI();
+                        } else {
+                            // Direct update of resource display as fallback
+                            const resourceDisplay = document.querySelector('resource-display');
+                            if (resourceDisplay) {
+                                resourceDisplay.updateResources();
+                            }
                         }
                     }
                 }
+            });
+        });
+
+        // Add touchstart event for feedback
+        card.addEventListener('touchstart', function(e) {
+            // Don't provide feedback for disabled cards
+            if (!this.classList.contains('disabled')) {
+                this.style.backgroundColor = '#f5f5f5';
             }
+        });
+
+        // Add touchend/touchcancel to reset appearance
+        ['touchend', 'touchcancel'].forEach(eventName => {
+            card.addEventListener(eventName, function() {
+                // Reset background after touch
+                setTimeout(() => {
+                    this.style.backgroundColor = '';
+                }, 150);
+            });
         });
     }
     
@@ -324,6 +540,11 @@ class BuildingCard extends HTMLElement {
         setTimeout(() => {
             card.classList.remove('pulse');
         }, 1000);
+
+        // Add haptic feedback for devices that support it
+        if (navigator.vibrate) {
+            navigator.vibrate(50);
+        }
     }
     
     updateBuildingInfo() {
@@ -372,12 +593,15 @@ class BuildingCard extends HTMLElement {
             }
             
             reqMsg.textContent = reqMessage;
+            reqMsg.style.display = 'block';
         } else if (!canAfford) {
             card.classList.add('disabled');
             reqMsg.textContent = "Not enough resources";
+            reqMsg.style.display = 'block';
         } else {
             card.classList.add('affordable');
             reqMsg.textContent = "";
+            reqMsg.style.display = 'none';
         }
     }
 }

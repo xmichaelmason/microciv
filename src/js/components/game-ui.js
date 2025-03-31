@@ -12,204 +12,219 @@ class GameUI extends HTMLElement {
     
     connectedCallback() {
         this.updateUI();
-        this.addEventListeners();
-    }
-    
-    addEventListeners() {
-        // Listen for military updates to refresh the UI
-        this.shadowRoot.addEventListener('military-update', () => {
-            this.updateUI();
-        });
     }
     
     render() {
         this.shadowRoot.innerHTML = `
             <style>
                 :host {
-                    display: flex;
-                    flex-direction: column;
-                    flex-grow: 1;
-                    overflow: auto;
-                }
-                .game-content {
-                    display: flex;
-                    flex-direction: column;
-                }
-                .buildings-section {
-                    margin-top: 10px;
-                    padding-bottom: 20px;
-                }
-                .buildings-container {
-                    display: grid;
-                    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-                    gap: 20px;
-                    padding: 15px;
-                    justify-content: center;
-                }
-                h2 {
-                    text-align: center;
-                    margin: 10px 0;
-                    color: #333;
-                    font-size: 1.2em;
-                    position: relative;
-                }
-                h2::after {
-                    content: '';
-                    position: absolute;
-                    bottom: -5px;
-                    left: 50%;
-                    transform: translateX(-50%);
-                    width: 60px;
-                    height: 3px;
-                    background-color: #3f51b5;
-                    border-radius: 2px;
-                }
-                .category-title {
-                    display: flex;
-                    align-items: center;
-                    margin: 25px 15px 10px;
-                    position: relative;
-                }
-                .category-title::before {
-                    content: '';
-                    flex-grow: 1;
-                    height: 1px;
-                    background-color: #e0e0e0;
-                    margin-right: 15px;
-                }
-                .category-title::after {
-                    content: '';
-                    flex-grow: 1;
-                    height: 1px;
-                    background-color: #e0e0e0;
-                    margin-left: 15px;
-                }
-                .category-label {
-                    font-size: 0.9em;
-                    font-weight: bold;
-                    color: #555;
-                    text-transform: uppercase;
-                    letter-spacing: 1px;
-                    background-color: #f5f5f5;
-                    border-radius: 20px;
-                    padding: 5px 15px;
-                }
-                .win-overlay {
-                    position: fixed;
-                    top: 0;
-                    left: 0;
+                    display: block;
                     width: 100%;
-                    height: 100%;
-                    background-color: rgba(0, 0, 0, 0.8);
+                }
+                
+                .game-title-section {
                     display: flex;
-                    justify-content: center;
+                    justify-content: space-between;
                     align-items: center;
-                    flex-direction: column;
+                    margin-bottom: 10px;
+                }
+                
+                .end-turn-btn {
+                    background-color: var(--accent-color, #FF5722);
                     color: white;
-                    font-size: 24px;
-                    z-index: 1000;
-                }
-                .win-overlay button {
-                    margin-top: 20px;
-                    padding: 10px 20px;
-                    font-size: 18px;
-                    background-color: gold;
-                    color: black;
                     border: none;
-                    border-radius: 5px;
+                    border-radius: 4px;
+                    padding: 8px 20px;
+                    font-size: 1rem;
+                    font-weight: bold;
                     cursor: pointer;
+                    transition: background-color 0.2s;
                 }
-                .military-section {
-                    margin: 0 10px;
+                
+                .end-turn-btn:hover {
+                    background-color: #e64a19;
+                }
+                
+                .game-status {
+                    display: flex;
+                    flex-wrap: wrap;
+                    justify-content: space-between;
+                    gap: 10px;
+                    background-color: rgba(0, 0, 0, 0.1);
+                    padding: 8px 12px;
+                    border-radius: 4px;
+                    margin-top: 10px;
+                }
+                
+                .status-item {
+                    display: flex;
+                    align-items: center;
+                    gap: 5px;
+                    font-size: 0.9rem;
+                    color: white;
+                }
+                
+                .status-icon {
+                    width: 16px;
+                    height: 16px;
+                    display: inline-block;
+                    background-color: rgba(255, 255, 255, 0.3);
+                    border-radius: 50%;
+                }
+                
+                .status-label {
+                    font-weight: 500;
+                    opacity: 0.8;
+                }
+                
+                /* Responsive styles */
+                @media (max-width: 864px) {
+                    .game-status {
+                        flex-wrap: wrap;
+                        padding: 6px 8px;
+                        gap: 5px;
+                        background-color: rgba(0, 0, 0, 0.2);
+                        font-size: 0.85rem;
+                    }
+                    
+                    .status-item {
+                        display: inline-flex;
+                        align-items: center;
+                        gap: 3px;
+                        padding: 3px 6px;
+                        border-radius: 3px;
+                        background-color: rgba(255, 255, 255, 0.1);
+                        white-space: nowrap;
+                        margin-right: 5px;
+                    }
+                    
+                    .status-icon {
+                        width: 10px;
+                        height: 10px;
+                    }
+                    
+                    /* Hide labels on very small screens */
+                    .status-label {
+                        display: none;
+                    }
+                    
+                    .end-turn-btn {
+                        padding: 6px 15px;
+                        font-size: 0.9rem;
+                    }
+                }
+                
+                /* Ultra compact mode */
+                @media (max-width: 480px) {
+                    .game-status {
+                        padding: 4px;
+                        gap: 3px;
+                    }
+                    
+                    .status-item {
+                        padding: 2px 4px;
+                        font-size: 0.75rem;
+                    }
+                    
+                    .status-icon {
+                        width: 8px;
+                        height: 8px;
+                    }
                 }
             </style>
             
-            <resource-display></resource-display>
+            <div class="game-title-section">
+                <h1>MicroCiv</h1>
+                <button class="end-turn-btn" id="end-turn-btn">End Turn</button>
+            </div>
             
-            <div class="game-content">
-                <div class="buildings-section">
-                    <h2>Buildings</h2>
-                    
-                    <div class="category-title">
-                        <span class="category-label">Resource Production</span>
-                    </div>
-                    <div class="buildings-container">
-                        <building-card type="house"></building-card>
-                        <building-card type="farm"></building-card>
-                        <building-card type="lumberMill"></building-card>
-                        <building-card type="quarry"></building-card>
-                        <building-card type="library"></building-card>
-                    </div>
-                    
-                    <div class="category-title">
-                        <span class="category-label">Military & Defense</span>
-                    </div>
-                    <div class="buildings-container">
-                        <building-card type="barracks"></building-card>
-                        <building-card type="wall"></building-card>
-                    </div>
-                    
-                    <div class="category-title">
-                        <span class="category-label">Victory Monument</span>
-                    </div>
-                    <div class="buildings-container">
-                        <building-card type="monument"></building-card>
-                    </div>
+            <div class="game-status">
+                <div class="status-item">
+                    <div class="status-icon" style="background-color: #FF9800;"></div>
+                    <span class="status-label">Turn:</span>
+                    <span id="turn-counter">1</span>
                 </div>
                 
-                <div class="military-section">
-                    <military-panel></military-panel>
+                <div class="status-item">
+                    <div class="status-icon" style="background-color: #4CAF50;"></div>
+                    <span class="status-label">Season:</span>
+                    <span id="current-season">Spring (3)</span>
+                </div>
+                
+                <div class="status-item">
+                    <div class="status-icon" style="background-color: #9C27B0;"></div>
+                    <span class="status-label">Terrain:</span>
+                    <span id="current-terrain">Plains</span>
+                </div>
+                
+                <div class="status-item">
+                    <div class="status-icon" style="background-color: #F44336;"></div>
+                    <span class="status-label">Defense:</span>
+                    <span id="defense-value">10</span>
                 </div>
             </div>
         `;
+        
+        // Add event listener to the end turn button
+        const endTurnBtn = this.shadowRoot.getElementById('end-turn-btn');
+        endTurnBtn.addEventListener('click', () => {
+            const gameState = window.gameState;
+            if (gameState) {
+                gameState.endTurn();
+                this.updateUI();
+            }
+        });
     }
     
     updateUI() {
         const gameState = window.gameState;
         if (!gameState) return;
+
+        // Update turn counter
+        this.shadowRoot.getElementById('turn-counter').textContent = gameState.turn;
         
-        // Update resource display
-        const resourceDisplay = this.shadowRoot.querySelector('resource-display');
-        if (resourceDisplay) {
-            resourceDisplay.updateResources();
+        // Update current season
+        const seasonInfo = gameState.seasonsSystem.getCurrentSeasonInfo();
+        this.shadowRoot.getElementById('current-season').textContent = `${seasonInfo.name} (${seasonInfo.turnsRemaining})`;
+        
+        // Update current terrain
+        this.shadowRoot.getElementById('current-terrain').textContent = gameState.terrainSystem.getCurrentTerrain().name;
+        
+        // Update defense value
+        this.shadowRoot.getElementById('defense-value').textContent = gameState.militarySystem.defenseValue;
+        
+        // Since we may have a standalone game-ui component and original status elements,
+        // also update the document elements if they exist
+        if (document.getElementById('turn-counter')) {
+            document.getElementById('turn-counter').textContent = gameState.turn;
+        }
+        if (document.getElementById('current-season')) {
+            document.getElementById('current-season').textContent = `${seasonInfo.name} (${seasonInfo.turnsRemaining})`;
+        }
+        if (document.getElementById('current-terrain')) {
+            document.getElementById('current-terrain').textContent = gameState.terrainSystem.getCurrentTerrain().name;
+        }
+        if (document.getElementById('defense-value')) {
+            document.getElementById('defense-value').textContent = gameState.militarySystem.defenseValue;
         }
         
-        // Update building cards
-        const buildingCards = this.shadowRoot.querySelectorAll('building-card');
+        // Update building cards if they exist
+        const buildingCards = document.querySelectorAll('building-card');
         buildingCards.forEach(card => {
             card.updateBuildingInfo();
         });
         
-        // Update military panel
-        const militaryPanel = this.shadowRoot.querySelector('military-panel');
-        if (militaryPanel) {
-            militaryPanel.updatePanel();
+        // Update resource display
+        const resourceDisplay = document.querySelector('resource-display');
+        if (resourceDisplay) {
+            resourceDisplay.updateResources();
         }
         
-        // Check for win condition
-        if (gameState.gameWon && !this.shadowRoot.querySelector('.win-overlay')) {
-            this.showWinMessage();
+        // Update events log
+        const eventsLog = document.querySelector('events-log');
+        if (eventsLog) {
+            eventsLog.updateEvents();
         }
-    }
-    
-    showWinMessage() {
-        const winOverlay = document.createElement('div');
-        winOverlay.className = 'win-overlay';
-        winOverlay.innerHTML = `
-            <h1>Victory!</h1>
-            <p>You have built the Monument and secured your civilization's legacy.</p>
-            <button id="restart-btn">Start New Game</button>
-        `;
-        
-        this.shadowRoot.appendChild(winOverlay);
-        
-        // Set up restart button
-        winOverlay.querySelector('#restart-btn').addEventListener('click', () => {
-            window.gameState = new window.gameState.constructor();
-            this.updateUI();
-            winOverlay.remove();
-            document.getElementById('turn-counter').textContent = 1;
-        });
     }
 }
 

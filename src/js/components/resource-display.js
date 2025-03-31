@@ -7,6 +7,14 @@ class ResourceDisplay extends HTMLElement {
     
     connectedCallback() {
         this.updateResources();
+        // Add responsive handling
+        this.setupResponsiveDisplay();
+        window.addEventListener('resize', () => this.setupResponsiveDisplay());
+    }
+    
+    disconnectedCallback() {
+        // Clean up event listener
+        window.removeEventListener('resize', () => this.setupResponsiveDisplay());
     }
     
     render() {
@@ -17,6 +25,7 @@ class ResourceDisplay extends HTMLElement {
                     background-color: rgba(255, 255, 255, 0.1);
                     padding: 12px;
                     border-radius: 6px;
+                    transition: all 0.3s ease;
                 }
                 .resources-grid {
                     display: grid;
@@ -76,6 +85,87 @@ class ResourceDisplay extends HTMLElement {
                 .production-negative {
                     color: #F44336;
                 }
+                
+                /* Info bar mode for screens below 864px */
+                @media (max-width: 864px) {
+                    :host {
+                        padding: 5px;
+                    }
+                    .resources-grid {
+                        grid-template-columns: repeat(5, 1fr);
+                        gap: 4px;
+                    }
+                    .resource-card {
+                        padding: 4px;
+                        flex-direction: row;
+                        justify-content: center;
+                        background-color: transparent;
+                    }
+                    .resource-name {
+                        display: none; /* Hide name on smaller screens */
+                    }
+                    .resource-value {
+                        font-size: 1em;
+                        margin: 0 2px;
+                    }
+                    .resource-icon {
+                        width: 16px;
+                        height: 16px;
+                        margin: 0 3px 0 0;
+                    }
+                    .resource-production {
+                        display: none; /* Hide production on smaller screens */
+                    }
+                }
+                
+                /* More compact styling for the info bar */
+                .info-bar-mode {
+                    padding: 5px;
+                    background-color: rgba(0, 0, 0, 0.2);
+                    border-radius: 4px;
+                }
+                .info-bar-mode .resources-grid {
+                    grid-template-columns: repeat(5, 1fr);
+                    gap: 3px;
+                }
+                .info-bar-mode .resource-card {
+                    flex-direction: row;
+                    padding: 2px;
+                    background-color: transparent;
+                    align-items: center;
+                    justify-content: center;
+                }
+                .info-bar-mode .resource-icon {
+                    width: 12px;
+                    height: 12px;
+                    margin: 0 3px 0 0;
+                }
+                .info-bar-mode .resource-name {
+                    display: none;
+                }
+                .info-bar-mode .resource-production {
+                    display: none;
+                }
+                .info-bar-mode .resource-value {
+                    font-size: 0.85em;
+                    margin: 0;
+                    font-weight: bold;
+                }
+                
+                /* Compact mode for tiny screens */
+                @media (max-width: 400px) {
+                    :host {
+                        padding: 3px;
+                        margin-bottom: 3px;
+                    }
+                    .resource-icon {
+                        width: 10px;
+                        height: 10px;
+                    }
+                    .resource-value {
+                        font-size: 0.75em;
+                    }
+                }
             </style>
             
             <div class="resources-grid">
@@ -115,6 +205,21 @@ class ResourceDisplay extends HTMLElement {
                 </div>
             </div>
         `;
+    }
+    
+    // New method for responsive layout
+    setupResponsiveDisplay() {
+        const hostElement = this.shadowRoot.host;
+        
+        // For screens below 864px, use info bar mode
+        if (window.innerWidth <= 864) {
+            hostElement.classList.add('info-bar-mode');
+        } else {
+            // Restore normal layout
+            if (hostElement.classList.contains('info-bar-mode')) {
+                hostElement.classList.remove('info-bar-mode');
+            }
+        }
     }
     
     updateResources() {
