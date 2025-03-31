@@ -2,6 +2,8 @@
 
 A minimalist, browser-based civilization-building strategy game implemented in JavaScript.
 
+[Play here](https://xmichaelmason.github.io/microciv/)
+
 ## Description
 
 MicroCiv is a lightweight strategy game where players build and manage a small civilization. The game features resource management, building construction, technology research, and adaptive survival mechanics with changing seasons and terrain.
