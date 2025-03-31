@@ -134,7 +134,7 @@ class ResourceDisplay extends HTMLElement {
         this.shadowRoot.getElementById('population-value').textContent = 
             `${gameState.population.current}/${gameState.population.capacity}`;
         
-        // Update production rates with visual indicators
+        // Update production rates with visual indicators - ensure they're never negative
         this.updateProductionElement('food-production', gameState.production.food);
         this.updateProductionElement('wood-production', gameState.production.wood);
         this.updateProductionElement('stone-production', gameState.production.stone);
@@ -150,6 +150,9 @@ class ResourceDisplay extends HTMLElement {
     updateProductionElement(elementId, value) {
         const element = this.shadowRoot.getElementById(elementId);
         if (!element) return;
+        
+        // Ensure value is never negative for display
+        value = Math.max(0, value);
         
         // Format the value
         const formattedValue = Number(value.toFixed(1));

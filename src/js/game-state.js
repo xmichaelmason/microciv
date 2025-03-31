@@ -77,10 +77,11 @@ export class GameState {
         // Building effects
         this.buildingEffects = {
             house: () => { this.population.capacity += 2; },
-            farm: () => { this.production.food += 3 * this.productionMultipliers.farm; },
-            lumberMill: () => { this.production.wood += 2 * this.productionMultipliers.lumberMill; },
-            quarry: () => { this.production.stone += 2 * this.productionMultipliers.quarry; },
-            library: () => { this.production.science += 1.5 * this.productionMultipliers.library; },
+            // Remove production updates from individual effects since updateProduction handles this
+            farm: () => { /* Production handled by updateProduction */ },
+            lumberMill: () => { /* Production handled by updateProduction */ },
+            quarry: () => { /* Production handled by updateProduction */ },
+            library: () => { /* Production handled by updateProduction */ },
             barracks: () => { 
                 // Barracks increase defense and allow training units
                 if (this.militarySystem) {
@@ -247,7 +248,7 @@ export class GameState {
         // Reset to base values
         this.production = {...this.baseProduction};
         
-        // Apply building effects
+        // Apply building effects first
         for (const [buildingType, count] of Object.entries(this.buildings)) {
             if (count > 0 && buildingType !== 'house' && buildingType !== 'monument' && buildingType !== 'barracks' && buildingType !== 'wall') {
                 // For each building, add its production * count * multiplier
@@ -259,6 +260,9 @@ export class GameState {
             }
         }
         
+        // Store pre-modified production for debugging
+        const preModifiedProduction = {...this.production};
+        
         // Apply terrain modifiers
         this.terrainSystem.applyTerrainModifiers(this);
         
@@ -269,6 +273,13 @@ export class GameState {
                 if (currentSeason.modifiers[resource]) {
                     this.production[resource] *= currentSeason.modifiers[resource];
                 }
+            }
+        }
+        
+        // Ensure production values never go negative - this is critical
+        for (const resource in this.production) {
+            if (this.production[resource] < 0) {
+                this.production[resource] = 0;
             }
         }
     }

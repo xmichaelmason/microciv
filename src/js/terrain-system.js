@@ -120,14 +120,15 @@ export class TerrainSystem {
         const terrain = this.terrainTypes[this.currentTerrain];
         const baseProduction = {...gameState.baseProduction};
         
-        // Apply modifiers to each resource production
+        // Start by applying terrain modifiers to base production values
         for (const resource in baseProduction) {
             if (terrain.modifiers[resource]) {
+                // Apply terrain modifiers to base production only - don't add building production yet
                 gameState.production[resource] = baseProduction[resource] * terrain.modifiers[resource];
             }
         }
         
-        // Apply building specific modifiers
+        // Now handle building production separately
         for (const building in gameState.buildings) {
             if (gameState.buildings[building] > 0 && terrain.buildingModifiers[building]) {
                 // Get the base production value for this building type
@@ -135,14 +136,18 @@ export class TerrainSystem {
                 if (baseValue && baseValue.resource) {
                     const resource = baseValue.resource;
                     const amount = baseValue.amount;
+                    const count = gameState.buildings[building];
+                    const multiplier = gameState.productionMultipliers[building];
                     
-                    // Apply terrain modifier to this building's output
-                    gameState.production[resource] += (amount * terrain.buildingModifiers[building] - amount) * 
-                        gameState.buildings[building];
+                    // Calculate the building production with terrain modifier
+                    // Important: This is additive to base production, not replacing it
+                    const buildingProduction = amount * count * multiplier * terrain.buildingModifiers[building];
+                    gameState.production[resource] += buildingProduction;
                 }
             }
         }
         
+        // Apply defense and trade bonuses as before
         // Apply defense bonus if applicable
         if (terrain.defenseBonus && gameState.militarySystem) {
             gameState.militarySystem.terrainDefenseMultiplier = terrain.defenseBonus;

@@ -304,6 +304,12 @@ class BuildingCard extends HTMLElement {
                     const gameUI = document.querySelector('game-ui');
                     if (gameUI) {
                         gameUI.updateUI();
+                    } else {
+                        // Direct update of resource display as fallback
+                        const resourceDisplay = document.querySelector('resource-display');
+                        if (resourceDisplay) {
+                            resourceDisplay.updateResources();
+                        }
                     }
                 }
             }
