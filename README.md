@@ -20,7 +20,7 @@ MicroCiv is a lightweight strategy game where players build and manage a small c
 
 1. Clone the repository:
    ```
-   git clone https://github.com/yourusername/microciv.git
+   git clone https://github.com/xmichaelmason/microciv.git
    cd microciv
    ```
 
