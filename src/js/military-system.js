@@ -149,13 +149,16 @@ export class MilitarySystem {
             // Failed defense - calculate losses
             const severityFactor = Math.min(1, (raidStrength - defenseStrength) / raidStrength);
             
-            // Possible resource losses
+            // Possible resource losses - ensuring resources don't go negative
             for (const resource of ['food', 'wood', 'stone']) {
                 if (this.gameState.resources[resource] > 0) {
-                    const loss = Math.floor(this.gameState.resources[resource] * severityFactor * 0.5);
-                    if (loss > 0) {
-                        this.gameState.resources[resource] -= loss;
-                        losses[resource] = loss;
+                    // Calculate loss but cap it at the current resource amount
+                    const calculatedLoss = Math.floor(this.gameState.resources[resource] * severityFactor * 0.5);
+                    const actualLoss = Math.min(calculatedLoss, this.gameState.resources[resource]);
+                    
+                    if (actualLoss > 0) {
+                        this.gameState.resources[resource] -= actualLoss;
+                        losses[resource] = actualLoss;
                     }
                 }
             }

@@ -174,10 +174,17 @@ export class GameState {
         const costs = this.buildingCosts[buildingType];
         for (const [resource, amount] of Object.entries(costs)) {
             this.resources[resource] -= amount;
+            
+            // Ensure resources don't go negative (safeguard)
+            if (this.resources[resource] < 0) {
+                this.resources[resource] = 0;
+            }
         }
         
         // Add the building and apply its effects
         this.buildings[buildingType]++;
+        
+        // Apply the building effect
         this.buildingEffects[buildingType]();
         
         this.addEvent(`Built a new ${buildingType}`);
@@ -255,8 +262,15 @@ export class GameState {
         // Apply terrain modifiers
         this.terrainSystem.applyTerrainModifiers(this);
         
-        // Apply season modifiers
-        this.seasonsSystem.applySeasonModifiers();
+        // Apply season modifiers - using current season modifiers
+        const currentSeason = this.seasonsSystem.seasons[this.seasonsSystem.currentSeason];
+        if (currentSeason && currentSeason.modifiers) {
+            for (const resource in this.production) {
+                if (currentSeason.modifiers[resource]) {
+                    this.production[resource] *= currentSeason.modifiers[resource];
+                }
+            }
+        }
     }
     
     // End the current turn and process effects
